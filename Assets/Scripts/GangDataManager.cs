@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.IO;
 using TMPro; // Add this for TextMeshProUGUI
+using UnityEngine;
 using UnityEngine.UI; // Add this for Image
 
 public class GangDataManager : MonoBehaviour
@@ -12,6 +12,7 @@ public class GangDataManager : MonoBehaviour
     void Start()
     {
         savePath = Application.persistentDataPath + "/gangData.json";
+        Debug.Log("Gang data path: " + savePath);
         LoadGangData();
         DisplayExistingGangMembers();
     }
@@ -40,8 +41,12 @@ public class GangDataManager : MonoBehaviour
         if (criminalOrganization == null)
             return;
 
-        if (criminalOrganization.boss != null && !string.IsNullOrEmpty(criminalOrganization.boss.name))
+        if (
+            criminalOrganization.boss != null
+            && !string.IsNullOrEmpty(criminalOrganization.boss.name)
+        )
         {
+            criminalOrganization.boss.LoadMugshot();
             DisplayRecruitedGangMember(criminalOrganization.boss);
             InstantiateNPC(criminalOrganization.boss);
         }
@@ -50,6 +55,7 @@ public class GangDataManager : MonoBehaviour
         {
             if (!string.IsNullOrEmpty(underboss.name))
             {
+                underboss.LoadMugshot();
                 DisplayRecruitedGangMember(underboss);
                 InstantiateNPC(underboss);
             }
@@ -59,6 +65,7 @@ public class GangDataManager : MonoBehaviour
         {
             if (!string.IsNullOrEmpty(lieutenant.name))
             {
+                lieutenant.LoadMugshot();
                 DisplayRecruitedGangMember(lieutenant);
                 InstantiateNPC(lieutenant);
             }
@@ -68,6 +75,7 @@ public class GangDataManager : MonoBehaviour
         {
             if (!string.IsNullOrEmpty(soldier.name))
             {
+                soldier.LoadMugshot();
                 DisplayRecruitedGangMember(soldier);
                 InstantiateNPC(soldier);
             }
@@ -79,13 +87,17 @@ public class GangDataManager : MonoBehaviour
         Transform gangMembersContainer = GameObject.Find("GangMembersPanel")?.transform;
         GameObject gangMemberDisplay = Instantiate(gangMemberDisplayPrefab, gangMembersContainer);
 
-        TextMeshProUGUI nameText = gangMemberDisplay.transform.Find("GangMemberNameText").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI nameText = gangMemberDisplay
+            .transform.Find("GangMemberNameText")
+            .GetComponent<TextMeshProUGUI>();
         if (nameText != null)
         {
             nameText.text = recruitedNPC.name;
         }
 
-        Image portraitImage = gangMemberDisplay.transform.Find("PortraitImage").GetComponent<Image>();
+        Image portraitImage = gangMemberDisplay
+            .transform.Find("PortraitImage")
+            .GetComponent<Image>();
         if (portraitImage != null)
         {
             portraitImage.sprite = recruitedNPC.mugshot;

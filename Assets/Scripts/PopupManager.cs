@@ -69,10 +69,17 @@ public class PopupManager : MonoBehaviour
                 Vector3.zero
             );
 
+            // Set the mugshot path based on the sprite name
+            newMember.SetMugshot(selectedNPC.npcMugshot);
+
             criminalOrganization.AddMember(newMember);
             gangDataManager.SaveGangData(criminalOrganization);
 
-            GameObject npcInstance = Instantiate(selectedNPC.npcPrefab, Vector3.zero, Quaternion.identity);
+            GameObject npcInstance = Instantiate(
+                selectedNPC.npcPrefab,
+                Vector3.zero,
+                Quaternion.identity
+            );
 
             DisplayRecruitedGangMember(newMember);
 
@@ -85,13 +92,17 @@ public class PopupManager : MonoBehaviour
         Transform gangMembersContainer = GameObject.Find("GangMembersPanel")?.transform;
         GameObject gangMemberDisplay = Instantiate(gangMemberDisplayPrefab, gangMembersContainer);
 
-        TextMeshProUGUI nameText = gangMemberDisplay.transform.Find("GangMemberNameText").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI nameText = gangMemberDisplay
+            .transform.Find("GangMemberNameText")
+            .GetComponent<TextMeshProUGUI>();
         if (nameText != null)
         {
             nameText.text = recruitedNPC.name;
         }
 
-        Image portraitImage = gangMemberDisplay.transform.Find("PortraitImage").GetComponent<Image>();
+        Image portraitImage = gangMemberDisplay
+            .transform.Find("PortraitImage")
+            .GetComponent<Image>();
         if (portraitImage != null)
         {
             portraitImage.sprite = recruitedNPC.mugshot;
