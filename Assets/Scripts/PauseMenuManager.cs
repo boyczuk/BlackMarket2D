@@ -11,17 +11,24 @@ public class PauseMenuManager : MonoBehaviour
     public Button saveGameButton;
     public Button settingsButton;
     public Button exitButton;
+    public Button pauseButton;
 
     private GangDataManager gangDataManager;
 
     void Start()
     {
         pauseMenuPanel.SetActive(false);
+
+        // Set up button listeners
         resumeButton.onClick.AddListener(ResumeGame);
         saveGameButton.onClick.AddListener(SaveGame);
         settingsButton.onClick.AddListener(OpenSettings);
         exitButton.onClick.AddListener(ExitGame);
 
+        // Set up the listener for the PauseButton
+        pauseButton.onClick.AddListener(PauseGame);
+
+        // Find the GangDataManager component in the scene
         gangDataManager = FindObjectOfType<GangDataManager>();
     }
 
@@ -70,11 +77,13 @@ public class PauseMenuManager : MonoBehaviour
         }
     }
 
-    void OpenSettings(){
+    void OpenSettings()
+    {
         Debug.Log("Settings opened (placeholder)");
     }
 
-    void ExitGame() {
+    void ExitGame()
+    {
         Debug.Log("Exiting game...");
         Application.Quit();
     }
