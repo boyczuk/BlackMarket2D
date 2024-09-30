@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
+using TMPro;
 
 public class PopupManager : MonoBehaviour
 {
@@ -13,16 +12,23 @@ public class PopupManager : MonoBehaviour
     public Button confirmButton;
     public Image npcMugshotImage;
 
+    public Transform gangMembersContainer;
+    public GameObject gangMemberDisplayPrefab;
+
+    private List<RecruitableNPC> recruitedGangMembers = new List<RecruitableNPC>();
     private RecruitableNPC selectedNPC;
 
-    void Start() {
+    void Start()
+    {
         PopulateNPCList();
         confirmButton.onClick.AddListener(RecruitSelectedNPC);
         confirmButton.interactable = false;
     }
 
-    void PopulateNPCList() {
-        foreach (RecruitableNPC npc in recruitableNPCs) {
+    void PopulateNPCList()
+    {
+        foreach (RecruitableNPC npc in recruitableNPCs)
+        {
             GameObject npcButton = Instantiate(npcButtonPrefab, npcListContainer);
             TextMeshProUGUI buttonText = npcButton.GetComponentInChildren<TextMeshProUGUI>();
             buttonText.text = npc.npcName;
@@ -32,22 +38,56 @@ public class PopupManager : MonoBehaviour
         }
     }
 
-    void SelectNPC(RecruitableNPC npc) {
+    void SelectNPC(RecruitableNPC npc)
+    {
         selectedNPC = npc;
         npcDescriptionText.text = npc.description;
         npcMugshotImage.sprite = npc.npcMugshot;
         confirmButton.interactable = true;
+        Debug.Log("Selected NPC: " + npc.npcName);
     }
 
-    void RecruitSelectedNPC(){
-        if (selectedNPC != null) {
+    void RecruitSelectedNPC()
+    {
+        if (selectedNPC != null)
+        {
+            recruitedGangMembers.Add(selectedNPC);
             Instantiate(selectedNPC.npcPrefab, Vector3.zero, Quaternion.identity);
-            Debug.Log(selectedNPC.npcName + " has been recruited");
+            DisplayRecruitedGangMember(selectedNPC);
+            Debug.Log(selectedNPC.npcName + " has been recruited!");
             ClosePopup();
         }
     }
 
-    public void ClosePopup() {
+    void DisplayRecruitedGangMember(RecruitableNPC recruitedNPC)
+    {
+        Debug.Log("Displaying recruited NPC: " + recruitedNPC.npcName);
+
+        GameObject gangMemberDisplay = Instantiate(gangMemberDisplayPrefab, gangMembersContainer);
+
+        TextMeshProUGUI nameText = gangMemberDisplay.transform.Find("GangMemberNameText").GetComponent<TextMeshProUGUI>();
+        if (nameText != null)
+        {
+            nameText.text = recruitedNPC.npcName;
+        }
+        else
+        {
+            Debug.LogError("Could not find TextMeshProUGUI component on GangMemberNameText");
+        }
+
+        Image portraitImage = gangMemberDisplay.transform.Find("PortraitImage").GetComponent<Image>();
+        if (portraitImage != null)
+        {
+            portraitImage.sprite = recruitedNPC.npcMugshot;
+        }
+        else
+        {
+            Debug.LogError("Could not find Image component on PortraitImage");
+        }
+    }
+
+    public void ClosePopup()
+    {
         gameObject.SetActive(false);
     }
 }

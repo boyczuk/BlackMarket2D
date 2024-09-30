@@ -49,29 +49,22 @@ public class CameraZoom : MonoBehaviour
         // Pan with arrow keys or WASD
         if (Input.GetKey("w") || Input.GetKey(KeyCode.UpArrow))
         {
-            Debug.Log("W key pressed");
             pos.y += panSpeed * Time.deltaTime;
         }
         if (Input.GetKey("s") || Input.GetKey(KeyCode.DownArrow))
         {
-            Debug.Log("S key pressed");
             pos.y -= panSpeed * Time.deltaTime;
         }
         if (Input.GetKey("a") || Input.GetKey(KeyCode.LeftArrow))
         {
-            Debug.Log("A key pressed");
             pos.x -= panSpeed * Time.deltaTime;
         }
         if (Input.GetKey("d") || Input.GetKey(KeyCode.RightArrow))
         {
-            Debug.Log("D key pressed");
             pos.x += panSpeed * Time.deltaTime;
         }
 
         // Update the camera position
         mainCamera.transform.position = pos;
-
-        // Debugging to check if the camera position is updated
-        Debug.Log("Updated Camera Position: " + mainCamera.transform.position);
     }
 }
