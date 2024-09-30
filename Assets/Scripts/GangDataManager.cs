@@ -9,7 +9,6 @@ public class GangDataManager : MonoBehaviour
     void Start()
     {
         savePath = Application.persistentDataPath + "/gangData.json";
-        Debug.Log("Gang data path: " + savePath);
         LoadGangData();
     }
 
@@ -17,7 +16,6 @@ public class GangDataManager : MonoBehaviour
     {
         string json = JsonUtility.ToJson(organization, true);
         File.WriteAllText(savePath, json);
-        Debug.Log("Gang data saved to: " + savePath);
     }
 
     public void LoadGangData()
@@ -26,11 +24,9 @@ public class GangDataManager : MonoBehaviour
         {
             string json = File.ReadAllText(savePath);
             criminalOrganization = JsonUtility.FromJson<CriminalOrganization>(json);
-            Debug.Log("Gang data loaded.");
         }
         else
         {
-            Debug.LogWarning("No gang data found!");
             criminalOrganization = new CriminalOrganization();
         }
     }
