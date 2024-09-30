@@ -23,7 +23,6 @@ public class GangMember
     {
         mugshot = sprite;
         mugshotPath = sprite != null ? sprite.name : "";
-        Debug.Log("Mugshot path set to: " + mugshotPath);
     }
 
     public void LoadMugshot()
@@ -34,10 +33,6 @@ public class GangMember
             if (mugshot == null)
             {
                 Debug.LogWarning("Failed to load mugshot: " + mugshotPath);
-            }
-            else
-            {
-                Debug.Log("Successfully loaded mugshot: " + mugshotPath);
             }
         }
     }

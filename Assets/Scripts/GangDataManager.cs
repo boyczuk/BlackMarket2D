@@ -1,7 +1,7 @@
-using System.IO;
-using TMPro; // Add this for TextMeshProUGUI
 using UnityEngine;
-using UnityEngine.UI; // Add this for Image
+using System.IO;
+using TMPro;
+using UnityEngine.UI;
 
 public class GangDataManager : MonoBehaviour
 {
@@ -12,9 +12,9 @@ public class GangDataManager : MonoBehaviour
     void Start()
     {
         savePath = Application.persistentDataPath + "/gangData.json";
-        Debug.Log("Gang data path: " + savePath);
         LoadGangData();
         DisplayExistingGangMembers();
+        SpawnGangMembersInWorld();
     }
 
     public void SaveGangData(CriminalOrganization organization)
@@ -38,17 +38,12 @@ public class GangDataManager : MonoBehaviour
 
     void DisplayExistingGangMembers()
     {
-        if (criminalOrganization == null)
-            return;
+        if (criminalOrganization == null) return;
 
-        if (
-            criminalOrganization.boss != null
-            && !string.IsNullOrEmpty(criminalOrganization.boss.name)
-        )
+        if (criminalOrganization.boss != null && !string.IsNullOrEmpty(criminalOrganization.boss.name))
         {
             criminalOrganization.boss.LoadMugshot();
             DisplayRecruitedGangMember(criminalOrganization.boss);
-            InstantiateNPC(criminalOrganization.boss);
         }
 
         foreach (var underboss in criminalOrganization.underbosses)
@@ -57,7 +52,6 @@ public class GangDataManager : MonoBehaviour
             {
                 underboss.LoadMugshot();
                 DisplayRecruitedGangMember(underboss);
-                InstantiateNPC(underboss);
             }
         }
 
@@ -67,7 +61,6 @@ public class GangDataManager : MonoBehaviour
             {
                 lieutenant.LoadMugshot();
                 DisplayRecruitedGangMember(lieutenant);
-                InstantiateNPC(lieutenant);
             }
         }
 
@@ -77,8 +70,51 @@ public class GangDataManager : MonoBehaviour
             {
                 soldier.LoadMugshot();
                 DisplayRecruitedGangMember(soldier);
-                InstantiateNPC(soldier);
             }
+        }
+    }
+
+    void SpawnGangMembersInWorld()
+    {
+        if (criminalOrganization == null) return;
+
+        if (criminalOrganization.boss != null && !string.IsNullOrEmpty(criminalOrganization.boss.name))
+        {
+            SpawnMemberInWorld(criminalOrganization.boss);
+        }
+
+        foreach (var underboss in criminalOrganization.underbosses)
+        {
+            if (!string.IsNullOrEmpty(underboss.name))
+            {
+                SpawnMemberInWorld(underboss);
+            }
+        }
+
+        foreach (var lieutenant in criminalOrganization.lieutenants)
+        {
+            if (!string.IsNullOrEmpty(lieutenant.name))
+            {
+                SpawnMemberInWorld(lieutenant);
+            }
+        }
+
+        foreach (var soldier in criminalOrganization.soldiers)
+        {
+            if (!string.IsNullOrEmpty(soldier.name))
+            {
+                SpawnMemberInWorld(soldier);
+            }
+        }
+    }
+
+    void SpawnMemberInWorld(GangMember member)
+    {
+        GameObject npcPrefab = Resources.Load<GameObject>("Prefabs/NPC");
+        if (npcPrefab != null)
+        {
+            GameObject npcInstance = Instantiate(npcPrefab, member.position, Quaternion.identity);
+            npcInstance.name = member.name;
         }
     }
 
@@ -87,29 +123,16 @@ public class GangDataManager : MonoBehaviour
         Transform gangMembersContainer = GameObject.Find("GangMembersPanel")?.transform;
         GameObject gangMemberDisplay = Instantiate(gangMemberDisplayPrefab, gangMembersContainer);
 
-        TextMeshProUGUI nameText = gangMemberDisplay
-            .transform.Find("GangMemberNameText")
-            .GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI nameText = gangMemberDisplay.transform.Find("GangMemberNameText").GetComponent<TextMeshProUGUI>();
         if (nameText != null)
         {
             nameText.text = recruitedNPC.name;
         }
 
-        Image portraitImage = gangMemberDisplay
-            .transform.Find("PortraitImage")
-            .GetComponent<Image>();
+        Image portraitImage = gangMemberDisplay.transform.Find("PortraitImage").GetComponent<Image>();
         if (portraitImage != null)
         {
             portraitImage.sprite = recruitedNPC.mugshot;
-        }
-    }
-
-    void InstantiateNPC(GangMember recruitedNPC)
-    {
-        GameObject npcPrefab = Resources.Load<GameObject>("Prefabs/NPC"); // Assuming NPC.prefab is stored in a 'Resources/Prefabs' folder
-        if (npcPrefab != null)
-        {
-            Instantiate(npcPrefab, recruitedNPC.position, Quaternion.identity);
         }
     }
 }
