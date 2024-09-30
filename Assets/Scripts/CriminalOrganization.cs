@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,19 +9,49 @@ public class CriminalOrganization
     public List<GangMember> lieutenants = new List<GangMember>();
     public List<GangMember> soldiers = new List<GangMember>();
 
-    public void AddMember(GangMember member){
-        switch(member.role){
+    public CriminalOrganization()
+    {
+        boss = null;
+        underbosses = new List<GangMember>();
+        lieutenants = new List<GangMember>();
+        soldiers = new List<GangMember>();
+    }
+
+    // Method to get all members
+    public List<GangMember> GetAllMembers()
+    {
+        List<GangMember> allMembers = new List<GangMember>();
+
+        if (boss != null)
+        {
+            allMembers.Add(boss);
+        }
+
+        allMembers.AddRange(underbosses);
+        allMembers.AddRange(lieutenants);
+        allMembers.AddRange(soldiers);
+
+        return allMembers;
+    }
+
+    public void AddMember(GangMember newMember)
+    {
+        switch (newMember.role)
+        {
             case "Boss":
-                boss = member;
+                boss = newMember;
                 break;
             case "Underboss":
-                underbosses.Add(member);
+                underbosses.Add(newMember);
                 break;
             case "Lieutenant":
-                underbosses.Add(member);
+                lieutenants.Add(newMember);
                 break;
             case "Soldier":
-                underbosses.Add(member);
+                soldiers.Add(newMember);
+                break;
+            default:
+                soldiers.Add(newMember); // Default to soldier if role is unspecified
                 break;
         }
     }
