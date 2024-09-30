@@ -668,6 +668,7 @@ MonoBehaviour:
     underbosses: []
     lieutenants: []
     soldiers: []
+  gangMemberDisplayPrefab: {fileID: 7768733330366045735, guid: dcc94462d5d49394d869b370b2444249, type: 3}
 --- !u!4 &514240042
 Transform:
   m_ObjectHideFlags: 0

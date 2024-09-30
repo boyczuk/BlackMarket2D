@@ -10,11 +10,11 @@ public class PopupManager : MonoBehaviour
     public TextMeshProUGUI npcDescriptionText;
     public Button confirmButton;
     public Image npcMugshotImage;
+    public GameObject gangMemberDisplayPrefab;
 
     private GangDataManager gangDataManager;
     private CriminalOrganization criminalOrganization;
     private RecruitableNPC selectedNPC;
-    public GameObject gangMemberDisplayPrefab;
 
     void Start()
     {
@@ -22,7 +22,6 @@ public class PopupManager : MonoBehaviour
         if (gangDataManager != null && gangDataManager.criminalOrganization != null)
         {
             criminalOrganization = gangDataManager.criminalOrganization;
-            DisplayExistingGangMembers();
         }
 
         PopulateNPCList();
@@ -35,44 +34,6 @@ public class PopupManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             ClosePopup();
-        }
-    }
-
-    void DisplayExistingGangMembers()
-    {
-        if (criminalOrganization == null)
-            return;
-
-        if (
-            criminalOrganization.boss != null
-            && !string.IsNullOrEmpty(criminalOrganization.boss.name)
-        )
-        {
-            DisplayRecruitedGangMember(criminalOrganization.boss);
-        }
-
-        foreach (var underboss in criminalOrganization.underbosses)
-        {
-            if (!string.IsNullOrEmpty(underboss.name))
-            {
-                DisplayRecruitedGangMember(underboss);
-            }
-        }
-
-        foreach (var lieutenant in criminalOrganization.lieutenants)
-        {
-            if (!string.IsNullOrEmpty(lieutenant.name))
-            {
-                DisplayRecruitedGangMember(lieutenant);
-            }
-        }
-
-        foreach (var soldier in criminalOrganization.soldiers)
-        {
-            if (!string.IsNullOrEmpty(soldier.name))
-            {
-                DisplayRecruitedGangMember(soldier);
-            }
         }
     }
 
@@ -111,11 +72,7 @@ public class PopupManager : MonoBehaviour
             criminalOrganization.AddMember(newMember);
             gangDataManager.SaveGangData(criminalOrganization);
 
-            GameObject npcInstance = Instantiate(
-                selectedNPC.npcPrefab,
-                Vector3.zero,
-                Quaternion.identity
-            );
+            GameObject npcInstance = Instantiate(selectedNPC.npcPrefab, Vector3.zero, Quaternion.identity);
 
             DisplayRecruitedGangMember(newMember);
 
@@ -128,17 +85,13 @@ public class PopupManager : MonoBehaviour
         Transform gangMembersContainer = GameObject.Find("GangMembersPanel")?.transform;
         GameObject gangMemberDisplay = Instantiate(gangMemberDisplayPrefab, gangMembersContainer);
 
-        TextMeshProUGUI nameText = gangMemberDisplay
-            .transform.Find("GangMemberNameText")
-            .GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI nameText = gangMemberDisplay.transform.Find("GangMemberNameText").GetComponent<TextMeshProUGUI>();
         if (nameText != null)
         {
             nameText.text = recruitedNPC.name;
         }
 
-        Image portraitImage = gangMemberDisplay
-            .transform.Find("PortraitImage")
-            .GetComponent<Image>();
+        Image portraitImage = gangMemberDisplay.transform.Find("PortraitImage").GetComponent<Image>();
         if (portraitImage != null)
         {
             portraitImage.sprite = recruitedNPC.mugshot;
