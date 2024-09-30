@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
 public class PopupManager : MonoBehaviour
 {
@@ -23,6 +24,12 @@ public class PopupManager : MonoBehaviour
         PopulateNPCList();
         confirmButton.onClick.AddListener(RecruitSelectedNPC);
         confirmButton.interactable = false;
+    }
+
+    void Update(){
+        if (Input.GetKeyDown(KeyCode.Escape)){
+            ClosePopup();
+        }
     }
 
     void PopulateNPCList()
