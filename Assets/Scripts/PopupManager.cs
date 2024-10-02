@@ -12,6 +12,12 @@ public class PopupManager : MonoBehaviour
     public Image npcMugshotImage;
     public GameObject gangMemberDisplayPrefab;
 
+    public GameObject recruitmentPanel;        
+    public GameObject hierarchyPanel;           
+    public Button viewRecruitmentButton;       
+    public Button viewHierarchyButton;        
+    public Button backButton;                   
+
     private GangDataManager gangDataManager;
     private CriminalOrganization criminalOrganization;
     private RecruitableNPC selectedNPC;
@@ -27,6 +33,14 @@ public class PopupManager : MonoBehaviour
         PopulateNPCList();
         confirmButton.onClick.AddListener(RecruitSelectedNPC);
         confirmButton.interactable = false;
+
+        viewRecruitmentButton.onClick.AddListener(ShowRecruitmentPanel);
+        viewHierarchyButton.onClick.AddListener(ShowHierarchyPanel);
+        backButton.onClick.AddListener(ShowBasePopup);
+
+        recruitmentPanel.SetActive(false);
+        hierarchyPanel.SetActive(false);
+        backButton.gameObject.SetActive(false);
     }
 
     void Update()
@@ -35,6 +49,27 @@ public class PopupManager : MonoBehaviour
         {
             ClosePopup();
         }
+    }
+
+    void ShowRecruitmentPanel()
+    {
+        recruitmentPanel.SetActive(true);
+        hierarchyPanel.SetActive(false);
+        backButton.gameObject.SetActive(true); 
+    }
+
+    void ShowHierarchyPanel()
+    {
+        recruitmentPanel.SetActive(false);
+        hierarchyPanel.SetActive(true);
+        backButton.gameObject.SetActive(true);
+    }
+
+    void ShowBasePopup()
+    {
+        recruitmentPanel.SetActive(false);
+        hierarchyPanel.SetActive(false);
+        backButton.gameObject.SetActive(false);
     }
 
     void PopulateNPCList()
@@ -69,7 +104,6 @@ public class PopupManager : MonoBehaviour
                 Vector3.zero
             );
 
-            // Set the mugshot path based on the sprite name
             newMember.SetMugshot(selectedNPC.npcMugshot);
 
             criminalOrganization.AddMember(newMember);
@@ -82,7 +116,6 @@ public class PopupManager : MonoBehaviour
             );
 
             DisplayRecruitedGangMember(newMember);
-
             ClosePopup();
         }
     }
