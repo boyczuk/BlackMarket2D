@@ -133,6 +133,11 @@ public class PopupManager : MonoBehaviour
 
     void DisplayRecruitedGangMember(GangMember recruitedNPC)
     {
+        if (recruitedNPC.kickedOut)
+        {
+            return; // Skip displaying this member if they are kicked out
+        }
+
         Transform gangMembersContainer = GameObject.Find("GangMembersPanel")?.transform;
         GameObject gangMemberDisplay = Instantiate(gangMemberDisplayPrefab, gangMembersContainer);
 
@@ -190,8 +195,8 @@ public class PopupManager : MonoBehaviour
 
     void CreateHierarchyEntry(GangMember member, Transform parent, int row, float xOffset)
     {
-        if (member == null)
-            return;
+        if (member == null || member.kickedOut)
+            return; // Skip kicked out members
 
         GameObject memberDisplay = Instantiate(hierarchyMemberPrefab, parent);
         memberDisplay.transform.localPosition = new Vector3(xOffset, -row * 55f + -5f, 0);
