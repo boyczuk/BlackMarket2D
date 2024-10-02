@@ -2966,6 +2966,7 @@ MonoBehaviour:
   backButton: {fileID: 740004653}
   closeButton: {fileID: 754647117}
   hierarchyMemberPrefab: {fileID: 8840235634467989190, guid: 52f7cef413c1b7b4f9b6ebb526336f80, type: 3}
+  profilePanelPrefab: {fileID: 3283994951770208288, guid: 495c5f0882f90af448b3c8a4a25f769d, type: 3}
 --- !u!1 &1253746099
 GameObject:
   m_ObjectHideFlags: 0
