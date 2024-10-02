@@ -141,7 +141,7 @@ public class PopupManager : MonoBehaviour
     {
         if (recruitedNPC.kickedOut)
         {
-            return; // Skip displaying this member if they are kicked out
+            return;
         }
 
         Transform gangMembersContainer = GameObject.Find("GangMembersPanel")?.transform;
@@ -202,10 +202,14 @@ public class PopupManager : MonoBehaviour
     void CreateHierarchyEntry(GangMember member, Transform parent, int row, float xOffset)
     {
         if (member == null || member.kickedOut)
-            return; // Skip kicked out members
+            return;
 
         GameObject memberDisplay = Instantiate(hierarchyMemberPrefab, parent);
-        memberDisplay.transform.localPosition = new Vector3(xOffset, -row * 55f + -5f, 0);
+
+        float baseYOffset = 130f; // Highest point
+        float yOffset = baseYOffset - row * 100f; // Spacing (adjust later for dynamic ranks if you create custom roles?)
+
+        memberDisplay.transform.localPosition = new Vector3(xOffset, yOffset, 0);
 
         TextMeshProUGUI memberText = memberDisplay
             .transform.Find("MemberText")
@@ -281,7 +285,6 @@ public class PopupManager : MonoBehaviour
             );
         }
 
-        // Find and set up the Kick Out button
         Button kickOutButton = activeProfilePanel
             .transform.Find("KickOutButton")
             .GetComponent<Button>();
@@ -298,7 +301,6 @@ public class PopupManager : MonoBehaviour
     {
         Debug.Log($"Kicking out member: {member.name}");
 
-        // Remove from the appropriate list
         if (criminalOrganization.boss == member)
         {
             criminalOrganization.boss = null;
@@ -316,14 +318,11 @@ public class PopupManager : MonoBehaviour
             criminalOrganization.soldiers.Remove(member);
         }
 
-        // Add to kicked out list
         member.kickedOut = true;
         criminalOrganization.kickedOutMembers.Add(member);
 
-        // Save the updated organization data
         gangDataManager.SaveGangData(criminalOrganization);
 
-        // Close profile and update hierarchy
         if (activeProfilePanel != null)
         {
             Destroy(activeProfilePanel);
