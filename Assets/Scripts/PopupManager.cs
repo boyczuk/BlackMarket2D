@@ -18,7 +18,7 @@ public class PopupManager : MonoBehaviour
     public Button viewHierarchyButton;
     public Button backButton;
     public Button closeButton;
-    public GameObject hierarchyMemberPrefab; // Add this for member prefab
+    public GameObject hierarchyMemberPrefab;
 
     private GangDataManager gangDataManager;
     private CriminalOrganization criminalOrganization;
@@ -30,7 +30,7 @@ public class PopupManager : MonoBehaviour
         if (gangDataManager != null && gangDataManager.criminalOrganization != null)
         {
             criminalOrganization = gangDataManager.criminalOrganization;
-            DisplayGangHierarchy(); // Add this to display hierarchy on load if needed
+            DisplayGangHierarchy();
         }
 
         PopulateNPCList();
@@ -67,7 +67,8 @@ public class PopupManager : MonoBehaviour
         recruitmentPanel.SetActive(false);
         hierarchyPanel.SetActive(true);
         backButton.gameObject.SetActive(true);
-        DisplayGangHierarchy(); // Call hierarchy display when showing hierarchy panel
+        closeButton.gameObject.SetActive(true);
+        DisplayGangHierarchy();
     }
 
     void ShowBasePopup()
@@ -75,6 +76,7 @@ public class PopupManager : MonoBehaviour
         recruitmentPanel.SetActive(false);
         hierarchyPanel.SetActive(false);
         backButton.gameObject.SetActive(false);
+        closeButton.gameObject.SetActive(true);
     }
 
     void PopulateNPCList()
@@ -152,19 +154,16 @@ public class PopupManager : MonoBehaviour
         if (hierarchyPanel == null)
             return;
 
-        // Clear existing elements in the hierarchy panel
         foreach (Transform child in hierarchyPanel.transform)
         {
             Destroy(child.gameObject);
         }
 
-        // Start with the boss
         if (criminalOrganization != null && criminalOrganization.boss != null)
         {
             CreateHierarchyEntry(criminalOrganization.boss, hierarchyPanel.transform, 0, 0);
         }
 
-        // Display other ranks in the hierarchy
         DisplayMembersInPyramid(criminalOrganization.underbosses.ToArray(), 1);
         DisplayMembersInPyramid(criminalOrganization.lieutenants.ToArray(), 2);
         DisplayMembersInPyramid(criminalOrganization.soldiers.ToArray(), 3);
@@ -176,18 +175,18 @@ public class PopupManager : MonoBehaviour
             return;
 
         int columns = members.Length;
-        float xOffset = 200f; // Adjust for horizontal spacing
+        float xOffset = 200f;
 
         for (int i = 0; i < columns; i++)
         {
-            float xPosition = (i - (columns - 1) / 2.0f) * xOffset; // Center the members horizontally
+            float xPosition = (i - (columns - 1) / 2.0f) * xOffset;
             CreateHierarchyEntry(members[i], hierarchyPanel.transform, row, xPosition);
         }
     }
 
     void CreateHierarchyEntry(GangMember member, Transform parent, int row, float xOffset)
     {
-        if (member == null) return; // Check if the member is not null
+        if (member == null) return;
 
         GameObject memberDisplay = Instantiate(hierarchyMemberPrefab, parent);
         memberDisplay.transform.localPosition = new Vector3(xOffset, -row * 55f + -5f, 0);
