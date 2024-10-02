@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,6 +20,9 @@ public class PopupManager : MonoBehaviour
     public Button backButton;
     public Button closeButton;
     public GameObject hierarchyMemberPrefab;
+
+    public GameObject profilePanelPrefab;
+    private GameObject activeProfilePanel;
 
     private GangDataManager gangDataManager;
     private CriminalOrganization criminalOrganization;
@@ -186,7 +190,8 @@ public class PopupManager : MonoBehaviour
 
     void CreateHierarchyEntry(GangMember member, Transform parent, int row, float xOffset)
     {
-        if (member == null) return;
+        if (member == null)
+            return;
 
         GameObject memberDisplay = Instantiate(hierarchyMemberPrefab, parent);
         memberDisplay.transform.localPosition = new Vector3(xOffset, -row * 55f + -5f, 0);
@@ -204,6 +209,45 @@ public class PopupManager : MonoBehaviour
         {
             memberImage.sprite = member.mugshot;
         }
+
+        Button memberButton = memberDisplay.GetComponent<Button>();
+        if (memberButton != null)
+        {
+            memberButton.onClick.AddListener(() => DisplayMemberProfile(member));
+        }
+    }
+
+    void DisplayMemberProfile(GangMember member)
+    {
+        if (activeProfilePanel != null)
+        {
+            Destroy(activeProfilePanel);
+        }
+
+        activeProfilePanel = Instantiate(profilePanelPrefab, hierarchyPanel.transform);
+        activeProfilePanel.transform.localPosition = Vector3.zero;
+
+        TextMeshProUGUI nameText = activeProfilePanel.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
+        if (nameText != null)
+        {
+            nameText.text = member.name;
+        }
+
+        Image mugshotImage = activeProfilePanel.transform.Find("MugshotImage")?.GetComponent<Image>();
+        if (mugshotImage != null)
+        {
+            mugshotImage.sprite = member.mugshot;
+        }
+
+        TMP_Dropdown roleDropdown = activeProfilePanel.transform.Find("RoleDropdown")?.GetComponent<TMP_Dropdown>();
+        if (roleDropdown != null)
+        {
+            roleDropdown.ClearOptions();
+            roleDropdown.AddOptions(new List<string> { "Boss", "Underboss", "Lieutenant", "Soldier" });
+            roleDropdown.value = roleDropdown.options.FindIndex(option => option.text == member.role);
+        }
+
+        Debug.Log($"Displaying profile for: {member.name}");
     }
 
     public void ClosePopup()
