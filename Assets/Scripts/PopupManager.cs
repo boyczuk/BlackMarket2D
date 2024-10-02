@@ -62,6 +62,8 @@ public class PopupManager : MonoBehaviour
     {
         recruitmentPanel.SetActive(true);
         hierarchyPanel.SetActive(false);
+        viewHierarchyButton.gameObject.SetActive(false);
+        viewRecruitmentButton.gameObject.SetActive(false);
         backButton.gameObject.SetActive(true);
         closeButton.gameObject.SetActive(true);
     }
@@ -70,6 +72,8 @@ public class PopupManager : MonoBehaviour
     {
         recruitmentPanel.SetActive(false);
         hierarchyPanel.SetActive(true);
+        viewHierarchyButton.gameObject.SetActive(false);
+        viewRecruitmentButton.gameObject.SetActive(false);
         backButton.gameObject.SetActive(true);
         closeButton.gameObject.SetActive(true);
         DisplayGangHierarchy();
@@ -79,6 +83,8 @@ public class PopupManager : MonoBehaviour
     {
         recruitmentPanel.SetActive(false);
         hierarchyPanel.SetActive(false);
+        viewHierarchyButton.gameObject.SetActive(true);
+        viewRecruitmentButton.gameObject.SetActive(true);
         backButton.gameObject.SetActive(false);
         closeButton.gameObject.SetActive(true);
     }
