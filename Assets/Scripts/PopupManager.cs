@@ -224,30 +224,96 @@ public class PopupManager : MonoBehaviour
             Destroy(activeProfilePanel);
         }
 
-        activeProfilePanel = Instantiate(profilePanelPrefab, hierarchyPanel.transform);
-        activeProfilePanel.transform.localPosition = Vector3.zero;
+        activeProfilePanel = Instantiate(profilePanelPrefab, transform.parent);
 
-        TextMeshProUGUI nameText = activeProfilePanel.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
+        RectTransform rectTransform = activeProfilePanel.GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.anchoredPosition = new Vector2(0, 0);
+        }
+
+        TextMeshProUGUI nameText = activeProfilePanel
+            .transform.Find("NameText")
+            .GetComponent<TextMeshProUGUI>();
         if (nameText != null)
         {
             nameText.text = member.name;
         }
 
-        Image mugshotImage = activeProfilePanel.transform.Find("MugshotImage")?.GetComponent<Image>();
+        Image mugshotImage = activeProfilePanel
+            .transform.Find("MugshotImage")
+            .GetComponent<Image>();
         if (mugshotImage != null)
         {
             mugshotImage.sprite = member.mugshot;
         }
 
-        TMP_Dropdown roleDropdown = activeProfilePanel.transform.Find("RoleDropdown")?.GetComponent<TMP_Dropdown>();
+        TMP_Dropdown roleDropdown = activeProfilePanel
+            .transform.Find("RoleDropdown")
+            .GetComponent<TMP_Dropdown>();
         if (roleDropdown != null)
         {
             roleDropdown.ClearOptions();
-            roleDropdown.AddOptions(new List<string> { "Boss", "Underboss", "Lieutenant", "Soldier" });
-            roleDropdown.value = roleDropdown.options.FindIndex(option => option.text == member.role);
+            roleDropdown.AddOptions(
+                new List<string> { "Boss", "Underboss", "Lieutenant", "Soldier" }
+            );
+
+            roleDropdown.value = roleDropdown.options.FindIndex(option =>
+                option.text == member.role
+            );
+
+            roleDropdown.onValueChanged.AddListener(
+                delegate
+                {
+                    string selectedRole = roleDropdown.options[roleDropdown.value].text;
+                    ChangeMemberRole(member, selectedRole);
+                }
+            );
         }
 
         Debug.Log($"Displaying profile for: {member.name}");
+    }
+
+    void ChangeMemberRole(GangMember member, string newRole)
+    {
+        switch (member.role)
+        {
+            case "Boss":
+                criminalOrganization.boss = null;
+                break;
+            case "Underboss":
+                criminalOrganization.underbosses.Remove(member);
+                break;
+            case "Lieutenant":
+                criminalOrganization.lieutenants.Remove(member);
+                break;
+            case "Soldier":
+                criminalOrganization.soldiers.Remove(member);
+                break;
+        }
+
+        member.role = newRole;
+        switch (newRole)
+        {
+            case "Boss":
+                criminalOrganization.boss = member;
+                break;
+            case "Underboss":
+                criminalOrganization.underbosses.Add(member);
+                break;
+            case "Lieutenant":
+                criminalOrganization.lieutenants.Add(member);
+                break;
+            case "Soldier":
+                criminalOrganization.soldiers.Add(member);
+                break;
+        }
+
+        gangDataManager.SaveGangData(criminalOrganization);
+
+        DisplayGangHierarchy();
+
+        Debug.Log($"Changed role of {member.name} to {newRole}");
     }
 
     public void ClosePopup()
