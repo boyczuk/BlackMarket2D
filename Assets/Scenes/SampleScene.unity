@@ -920,9 +920,11 @@ MonoBehaviour:
       role: 
       mugshotPath: 
       position: {x: 0, y: 0, z: 0}
+      kickedOut: 0
     underbosses: []
     lieutenants: []
     soldiers: []
+    kickedOutMembers: []
   gangMemberDisplayPrefab: {fileID: 7768733330366045735, guid: dcc94462d5d49394d869b370b2444249, type: 3}
 --- !u!4 &514240042
 Transform:
@@ -1836,9 +1838,9 @@ RectTransform:
   - {fileID: 1268663650}
   m_Father: {fileID: 1537446770}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 9, y: 233}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 9, y: -24}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &776429715
@@ -3997,9 +3999,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1537446770}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 421, y: 231}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -103, y: -26}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1599376141
@@ -4958,10 +4960,10 @@ RectTransform:
   - {fileID: 2004006796}
   m_Father: {fileID: 1537446770}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -515.2, y: 226.6}
-  m_SizeDelta: {x: 60.6, y: 53.1}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 32, y: -26}
+  m_SizeDelta: {x: 60.600006, y: 53.100006}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2004006795
 GameObject:

@@ -7,6 +7,7 @@ public class GangMember
     public string role;
     public string mugshotPath;
     public Vector3 position;
+    public bool kickedOut;
 
     [System.NonSerialized]
     public Sprite mugshot;
@@ -16,6 +17,7 @@ public class GangMember
         this.name = name;
         this.role = role;
         this.position = position;
+        this.kickedOut = false;
         SetMugshot(mugshot);
     }
 

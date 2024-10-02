@@ -8,6 +8,7 @@ public class CriminalOrganization
     public List<GangMember> underbosses = new List<GangMember>();
     public List<GangMember> lieutenants = new List<GangMember>();
     public List<GangMember> soldiers = new List<GangMember>();
+    public List<GangMember> kickedOutMembers = new List<GangMember>();
 
     public CriminalOrganization()
     {

@@ -257,7 +257,6 @@ public class PopupManager : MonoBehaviour
             roleDropdown.AddOptions(
                 new List<string> { "Boss", "Underboss", "Lieutenant", "Soldier" }
             );
-
             roleDropdown.value = roleDropdown.options.FindIndex(option =>
                 option.text == member.role
             );
@@ -271,7 +270,55 @@ public class PopupManager : MonoBehaviour
             );
         }
 
+        // Find and set up the Kick Out button
+        Button kickOutButton = activeProfilePanel
+            .transform.Find("KickOutButton")
+            .GetComponent<Button>();
+        if (kickOutButton != null)
+        {
+            kickOutButton.onClick.RemoveAllListeners();
+            kickOutButton.onClick.AddListener(() => KickOutMember(member));
+        }
+
         Debug.Log($"Displaying profile for: {member.name}");
+    }
+
+    void KickOutMember(GangMember member)
+    {
+        Debug.Log($"Kicking out member: {member.name}");
+
+        // Remove from the appropriate list
+        if (criminalOrganization.boss == member)
+        {
+            criminalOrganization.boss = null;
+        }
+        else if (criminalOrganization.underbosses.Contains(member))
+        {
+            criminalOrganization.underbosses.Remove(member);
+        }
+        else if (criminalOrganization.lieutenants.Contains(member))
+        {
+            criminalOrganization.lieutenants.Remove(member);
+        }
+        else if (criminalOrganization.soldiers.Contains(member))
+        {
+            criminalOrganization.soldiers.Remove(member);
+        }
+
+        // Add to kicked out list
+        member.kickedOut = true;
+        criminalOrganization.kickedOutMembers.Add(member);
+
+        // Save the updated organization data
+        gangDataManager.SaveGangData(criminalOrganization);
+
+        // Close profile and update hierarchy
+        if (activeProfilePanel != null)
+        {
+            Destroy(activeProfilePanel);
+        }
+
+        DisplayGangHierarchy();
     }
 
     void ChangeMemberRole(GangMember member, string newRole)
