@@ -5,14 +5,21 @@ using UnityEngine;
 public class UIManager : MonoBehaviour
 {
     public GameObject buildingTabPanel;
+    public WallPlacer wallPlacer;
 
-    // Start is called before the first frame update
     void Start()
     {
         buildingTabPanel.SetActive(false);
     }
 
-    public void ToggleBuildingTab() {
-        buildingTabPanel.SetActive(!buildingTabPanel.activeSelf);
+    public void ToggleBuildingTab()
+    {
+        bool isActive = !buildingTabPanel.activeSelf;
+        buildingTabPanel.SetActive(isActive);
+
+        if (!isActive)
+        {
+            wallPlacer.StopPlacingObject();
+        }
     }
 }
