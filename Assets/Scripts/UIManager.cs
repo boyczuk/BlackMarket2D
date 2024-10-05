@@ -10,6 +10,15 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         buildingTabPanel.SetActive(false);
+
+        if (wallPlacer == null)
+        {
+            wallPlacer = FindObjectOfType<WallPlacer>();
+            if (wallPlacer == null)
+            {
+                Debug.LogError("WallPlacer script not found!");
+            }
+        }
     }
 
     public void ToggleBuildingTab()
@@ -17,9 +26,14 @@ public class UIManager : MonoBehaviour
         bool isActive = !buildingTabPanel.activeSelf;
         buildingTabPanel.SetActive(isActive);
 
-        if (!isActive)
+        if (!isActive && wallPlacer != null)
         {
             wallPlacer.StopPlacingObject();
         }
+    }
+
+    public void ToggleDeleteMode()
+    {
+        wallPlacer.StartDeletingObject();
     }
 }
