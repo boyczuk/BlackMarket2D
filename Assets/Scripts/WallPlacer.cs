@@ -8,6 +8,7 @@ public class WallPlacer : MonoBehaviour
     public GameObject currentPrefab;
     private GameObject previewInstance;
     private bool isPlacing = false;
+    private bool isDeleting = false;
 
     void Update()
     {
@@ -20,20 +21,23 @@ public class WallPlacer : MonoBehaviour
                 PlaceObject();
             }
         }
+
+        if (isDeleting)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                DeleteObject();
+            }
+        }
     }
 
     public void StartPlacingObject(int prefabIndex)
     {
-        if (isPlacing && currentPrefab == buildablePrefabs[prefabIndex])
-        {
-            StopPlacingObject();
-            return;
-        }
-
         if (prefabIndex >= 0 && prefabIndex < buildablePrefabs.Length)
         {
             currentPrefab = buildablePrefabs[prefabIndex];
             isPlacing = true;
+            isDeleting = false; 
 
             if (previewInstance != null)
             {
@@ -45,7 +49,7 @@ public class WallPlacer : MonoBehaviour
             if (spriteRenderer != null)
             {
                 Color semiTransparent = spriteRenderer.color;
-                semiTransparent.a = 0.5f;
+                semiTransparent.a = 0.5f; 
                 spriteRenderer.color = semiTransparent;
             }
         }
@@ -60,6 +64,17 @@ public class WallPlacer : MonoBehaviour
         {
             Destroy(previewInstance);
         }
+    }
+
+    public void StartDeletingObject()
+    {
+        isDeleting = true;
+        isPlacing = false;
+    }
+
+    public void StopDeletingObject()
+    {
+        isDeleting = false;
     }
 
     private void UpdatePreviewPosition()
@@ -90,6 +105,17 @@ public class WallPlacer : MonoBehaviour
         if (IsValidPlacement(gridPosition))
         {
             Instantiate(currentPrefab, previewInstance.transform.position, Quaternion.identity);
+        }
+    }
+
+    private void DeleteObject()
+    {
+        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+
+        if (hit.collider != null)
+        {
+            Destroy(hit.collider.gameObject);
         }
     }
 
