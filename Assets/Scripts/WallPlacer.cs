@@ -32,28 +32,36 @@ public class WallPlacer : MonoBehaviour
     }
 
     public void StartPlacingObject(int prefabIndex)
+{
+    // If the selected prefab is already being placed, stop placing
+    if (isPlacing && currentPrefab == buildablePrefabs[prefabIndex])
     {
-        if (prefabIndex >= 0 && prefabIndex < buildablePrefabs.Length)
+        StopPlacingObject();
+        return;
+    }
+
+    if (prefabIndex >= 0 && prefabIndex < buildablePrefabs.Length)
+    {
+        currentPrefab = buildablePrefabs[prefabIndex];
+        isPlacing = true;
+        isDeleting = false; 
+
+        if (previewInstance != null)
         {
-            currentPrefab = buildablePrefabs[prefabIndex];
-            isPlacing = true;
-            isDeleting = false; 
+            Destroy(previewInstance);
+        }
 
-            if (previewInstance != null)
-            {
-                Destroy(previewInstance);
-            }
-
-            previewInstance = Instantiate(currentPrefab);
-            var spriteRenderer = previewInstance.GetComponent<SpriteRenderer>();
-            if (spriteRenderer != null)
-            {
-                Color semiTransparent = spriteRenderer.color;
-                semiTransparent.a = 0.5f; 
-                spriteRenderer.color = semiTransparent;
-            }
+        previewInstance = Instantiate(currentPrefab);
+        var spriteRenderer = previewInstance.GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            Color semiTransparent = spriteRenderer.color;
+            semiTransparent.a = 0.5f; 
+            spriteRenderer.color = semiTransparent;
         }
     }
+}
+
 
     public void StopPlacingObject()
     {
