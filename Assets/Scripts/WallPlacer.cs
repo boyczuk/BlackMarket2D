@@ -32,36 +32,34 @@ public class WallPlacer : MonoBehaviour
     }
 
     public void StartPlacingObject(int prefabIndex)
-{
-    // If the selected prefab is already being placed, stop placing
-    if (isPlacing && currentPrefab == buildablePrefabs[prefabIndex])
     {
-        StopPlacingObject();
-        return;
-    }
-
-    if (prefabIndex >= 0 && prefabIndex < buildablePrefabs.Length)
-    {
-        currentPrefab = buildablePrefabs[prefabIndex];
-        isPlacing = true;
-        isDeleting = false; 
-
-        if (previewInstance != null)
+        if (isPlacing && currentPrefab == buildablePrefabs[prefabIndex])
         {
-            Destroy(previewInstance);
+            StopPlacingObject();
+            return;
         }
 
-        previewInstance = Instantiate(currentPrefab);
-        var spriteRenderer = previewInstance.GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null)
+        if (prefabIndex >= 0 && prefabIndex < buildablePrefabs.Length)
         {
-            Color semiTransparent = spriteRenderer.color;
-            semiTransparent.a = 0.5f; 
-            spriteRenderer.color = semiTransparent;
+            currentPrefab = buildablePrefabs[prefabIndex];
+            isPlacing = true;
+            isDeleting = false; 
+
+            if (previewInstance != null)
+            {
+                Destroy(previewInstance);
+            }
+
+            previewInstance = Instantiate(currentPrefab);
+            var spriteRenderer = previewInstance.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                Color semiTransparent = spriteRenderer.color;
+                semiTransparent.a = 0.5f; 
+                spriteRenderer.color = semiTransparent;
+            }
         }
     }
-}
-
 
     public void StopPlacingObject()
     {
@@ -76,6 +74,12 @@ public class WallPlacer : MonoBehaviour
 
     public void StartDeletingObject()
     {
+        if (isDeleting)
+        {
+            StopDeletingObject();
+            return;
+        }
+
         isDeleting = true;
         isPlacing = false;
     }
