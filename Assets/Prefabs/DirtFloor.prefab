@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4269280212339097606}
   - component: {fileID: 1489759709827073457}
-  - component: {fileID: -6538633238159845935}
+  - component: {fileID: -3951800014974862418}
   m_Layer: 0
-  m_Name: ConcreteFloor
+  m_Name: DirtFloor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 8d83c10f0e35c9f428aea29b7ced774c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 52878626cdafd304680bfe30a4842480, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &-6538633238159845935
+--- !u!61 &-3951800014974862418
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
