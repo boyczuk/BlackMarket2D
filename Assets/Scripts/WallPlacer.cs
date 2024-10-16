@@ -116,7 +116,16 @@ public class WallPlacer : MonoBehaviour
 
         if (IsValidPlacement(gridPosition))
         {
-            Instantiate(currentPrefab, previewInstance.transform.position, Quaternion.identity);
+            GameObject placedObject = Instantiate(currentPrefab, previewInstance.transform.position, Quaternion.identity);
+
+            // Check if the placed object is a door and add DoorScript if not already added
+            if (placedObject.CompareTag("Door"))
+            {
+                if (placedObject.GetComponent<DoorScript>() == null)
+                {
+                    placedObject.AddComponent<DoorScript>();
+                }
+            }
         }
     }
 
@@ -133,6 +142,7 @@ public class WallPlacer : MonoBehaviour
 
     private bool IsValidPlacement(Vector2Int position)
     {
+        // Add your placement validation logic here if needed
         return true;
     }
 }
