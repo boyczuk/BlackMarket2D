@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1101212411070821529}
   m_Layer: 0
   m_Name: NPC
-  m_TagString: Untagged
+  m_TagString: NPC
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -126,8 +126,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 019e94cbec210824cb5dac7f801fb93a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2
-  changeDirectionTime: 2
+  speed: 2
+  wanderRadius: 5
+  waitTimeAtTarget: 1
 --- !u!61 &1101212411070821529
 BoxCollider2D:
   m_ObjectHideFlags: 0

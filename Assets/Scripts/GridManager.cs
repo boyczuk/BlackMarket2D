@@ -5,10 +5,10 @@ public class GridManager : MonoBehaviour
 {
     public LayerMask unwalkableMask;
     public Vector2 gridWorldSize;
-    public float nodeRadius = 0.6f;  // Slightly increased for more buffer space
+    public float nodeRadius = 1f;
 
     public Node[,] grid;
-    public List<Node> path;  // This will store the path for visualization
+    public List<Node> path;  
     
     float nodeDiameter;
     int gridSizeX, gridSizeY;
@@ -31,16 +31,10 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < gridSizeY; y++)
             {
                 Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) + Vector3.up * (y * nodeDiameter + nodeRadius);
-                // Adjusted the OverlapCircle to reduce detection range to avoid catching nearby tiles
-                bool walkable = !(Physics2D.OverlapCircle(worldPoint, nodeRadius * 0.5f, unwalkableMask));
+                bool walkable = !(Physics2D.OverlapCircle(worldPoint, nodeRadius * 0.7f, unwalkableMask)); 
 
                 grid[x, y] = new Node(walkable, worldPoint, x, y);
 
-                // Debugging to see which tiles are marked as unwalkable
-                if (!walkable)
-                {
-                    Debug.Log("Unwalkable tile detected at: " + worldPoint);
-                }
             }
         }
     }
@@ -94,7 +88,6 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        // Visualize the path
         if (path != null)
         {
             foreach (Node node in path)
