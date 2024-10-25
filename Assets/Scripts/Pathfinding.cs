@@ -24,7 +24,9 @@ public class Pathfinding : MonoBehaviour
             Node currentNode = openSet[0];
             for (int i = 1; i < openSet.Count; i++)
             {
-                if (openSet[i].FCost < currentNode.FCost || openSet[i].FCost == currentNode.FCost && openSet[i].hCost < currentNode.hCost)
+                // Adjust this condition to prefer nodes that make wider turns
+                if (openSet[i].FCost < currentNode.FCost || 
+                   (openSet[i].FCost == currentNode.FCost && openSet[i].hCost < currentNode.hCost))
                 {
                     currentNode = openSet[i];
                 }
@@ -44,6 +46,10 @@ public class Pathfinding : MonoBehaviour
                     continue;
 
                 int newCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor);
+
+                // Apply an extra cost if turning sharply to avoid sharp turns
+                newCostToNeighbor += GetTurnPenalty(currentNode, neighbor);
+
                 if (newCostToNeighbor < neighbor.gCost || !openSet.Contains(neighbor))
                 {
                     neighbor.gCost = newCostToNeighbor;
@@ -57,6 +63,28 @@ public class Pathfinding : MonoBehaviour
         }
 
         return null;
+    }
+
+    // New method to penalize sharp turns
+    int GetTurnPenalty(Node currentNode, Node nextNode)
+    {
+        // Define the current direction of movement
+        Vector2 currentDirection = new Vector2(currentNode.gridX - (currentNode.parent?.gridX ?? currentNode.gridX),
+                                               currentNode.gridY - (currentNode.parent?.gridY ?? currentNode.gridY));
+
+        // Define the direction to the next node
+        Vector2 nextDirection = new Vector2(nextNode.gridX - currentNode.gridX,
+                                            nextNode.gridY - currentNode.gridY);
+
+        // If the direction has changed (indicating a turn), add a penalty
+        if (currentDirection != nextDirection)
+        {
+            // Increase penalty for sharp turns (e.g., 90-degree turns)
+            return 10; // Adjust this value to control how "wide" the turns should be
+        }
+
+        // No turn, so no penalty
+        return 0;
     }
 
     List<Node> RetracePath(Node startNode, Node endNode)

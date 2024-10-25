@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.IO;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class GangDataManager : MonoBehaviour
@@ -28,19 +28,49 @@ public class GangDataManager : MonoBehaviour
         if (File.Exists(savePath))
         {
             string json = File.ReadAllText(savePath);
-            criminalOrganization = JsonUtility.FromJson<CriminalOrganization>(json);
+            if (!string.IsNullOrEmpty(json)) // Check if the file has content
+            {
+                criminalOrganization = JsonUtility.FromJson<CriminalOrganization>(json);
+            }
+            else
+            {
+                Debug.LogWarning("gangData.json is empty. Creating default organization.");
+                CreateDefaultOrganization(); // Initialize with default data
+            }
         }
         else
         {
-            criminalOrganization = new CriminalOrganization();
+            Debug.LogWarning("gangData.json not found. Creating default organization.");
+            CreateDefaultOrganization(); // Initialize with default data
         }
+    }
+
+    void CreateDefaultOrganization()
+    {
+        criminalOrganization = new CriminalOrganization();
+
+        // Example: Creating a default boss member
+        GangMember defaultBoss = new GangMember(
+            "Default Boss",
+            "Boss",
+            null,
+            Vector3.zero,
+            "NPC"
+        );
+        criminalOrganization.boss = defaultBoss;
+
+        SaveGangData(criminalOrganization); // Save this new data to gangData.json
     }
 
     void DisplayExistingGangMembers()
     {
-        if (criminalOrganization == null) return;
+        if (criminalOrganization == null)
+            return;
 
-        if (criminalOrganization.boss != null && !string.IsNullOrEmpty(criminalOrganization.boss.name))
+        if (
+            criminalOrganization.boss != null
+            && !string.IsNullOrEmpty(criminalOrganization.boss.name)
+        )
         {
             criminalOrganization.boss.LoadMugshot();
             DisplayRecruitedGangMember(criminalOrganization.boss);
@@ -76,9 +106,13 @@ public class GangDataManager : MonoBehaviour
 
     void SpawnGangMembersInWorld()
     {
-        if (criminalOrganization == null) return;
+        if (criminalOrganization == null)
+            return;
 
-        if (criminalOrganization.boss != null && !string.IsNullOrEmpty(criminalOrganization.boss.name))
+        if (
+            criminalOrganization.boss != null
+            && !string.IsNullOrEmpty(criminalOrganization.boss.name)
+        )
         {
             SpawnMemberInWorld(criminalOrganization.boss);
         }
@@ -110,11 +144,23 @@ public class GangDataManager : MonoBehaviour
 
     void SpawnMemberInWorld(GangMember member)
     {
-        GameObject npcPrefab = Resources.Load<GameObject>("Prefabs/NPC");
+        if (string.IsNullOrEmpty(member.npcPrefabName))
+        {
+            Debug.LogWarning(
+                "Missing npcPrefabName for member: " + member.name + ". Assigning default prefab."
+            );
+            member.npcPrefabName = "NPC";
+        }
+
+        GameObject npcPrefab = Resources.Load<GameObject>("Prefabs/" + member.npcPrefabName);
         if (npcPrefab != null)
         {
             GameObject npcInstance = Instantiate(npcPrefab, member.position, Quaternion.identity);
             npcInstance.name = member.name;
+        }
+        else
+        {
+            Debug.LogError("Failed to load NPC prefab: " + member.npcPrefabName);
         }
     }
 
@@ -123,13 +169,17 @@ public class GangDataManager : MonoBehaviour
         Transform gangMembersContainer = GameObject.Find("GangMembersPanel")?.transform;
         GameObject gangMemberDisplay = Instantiate(gangMemberDisplayPrefab, gangMembersContainer);
 
-        TextMeshProUGUI nameText = gangMemberDisplay.transform.Find("GangMemberNameText").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI nameText = gangMemberDisplay
+            .transform.Find("GangMemberNameText")
+            .GetComponent<TextMeshProUGUI>();
         if (nameText != null)
         {
             nameText.text = recruitedNPC.name;
         }
 
-        Image portraitImage = gangMemberDisplay.transform.Find("PortraitImage").GetComponent<Image>();
+        Image portraitImage = gangMemberDisplay
+            .transform.Find("PortraitImage")
+            .GetComponent<Image>();
         if (portraitImage != null)
         {
             portraitImage.sprite = recruitedNPC.mugshot;

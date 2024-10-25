@@ -8,6 +8,7 @@ TagManager:
   - NPC
   - Door
   - Floor
+  - Weapon
   layers:
   - Default
   - TransparentFX
@@ -15,7 +16,7 @@ TagManager:
   - Walls
   - Water
   - UI
-  - 
+  - Weapons
   - 
   - 
   - 
@@ -44,4 +45,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Weapons
+    uniqueID: 2037224149
     locked: 0

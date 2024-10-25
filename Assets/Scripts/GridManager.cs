@@ -31,14 +31,16 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < gridSizeY; y++)
             {
                 Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) + Vector3.up * (y * nodeDiameter + nodeRadius);
-                bool walkable = !(Physics2D.OverlapCircle(worldPoint, nodeRadius * 0.7f, unwalkableMask)); 
+                
+                // Check if the node is walkable based on unwalkableMask (walls)
+                bool walkable = !(Physics2D.OverlapCircle(worldPoint, nodeRadius * 0.7f, unwalkableMask));
 
                 grid[x, y] = new Node(walkable, worldPoint, x, y);
-
             }
         }
     }
 
+    // Get the neighbors of a node (used in pathfinding)
     public List<Node> GetNeighbors(Node node)
     {
         List<Node> neighbors = new List<Node>();
@@ -63,6 +65,7 @@ public class GridManager : MonoBehaviour
         return neighbors;
     }
 
+    // Convert world position to grid node
     public Node NodeFromWorldPoint(Vector2 worldPosition)
     {
         float percentX = (worldPosition.x + gridWorldSize.x / 2) / gridWorldSize.x;
@@ -75,6 +78,7 @@ public class GridManager : MonoBehaviour
         return grid[x, y];
     }
 
+    // Visualize the grid in the editor
     void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, gridWorldSize.y, 1));

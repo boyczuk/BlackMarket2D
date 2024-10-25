@@ -114,25 +114,40 @@ public class PopupManager : MonoBehaviour
     {
         if (selectedNPC != null)
         {
+            // Create a new GangMember with relevant data
             GangMember newMember = new GangMember(
-                selectedNPC.npcName,
-                "Soldier",
-                selectedNPC.npcMugshot,
-                Vector3.zero
+                selectedNPC.npcName, // NPC name
+                "Soldier", // Role
+                selectedNPC.npcMugshot, // Mugshot
+                Vector3.zero, // Default position
+                selectedNPC.npcPrefab.name // Prefab name
             );
 
+            // Set the mugshot for display
             newMember.SetMugshot(selectedNPC.npcMugshot);
 
+            // Add this new member to the organization
             criminalOrganization.AddMember(newMember);
+
+            // Save gang data
             gangDataManager.SaveGangData(criminalOrganization);
 
+            // Spawn the NPC in the game world
             GameObject npcInstance = Instantiate(
                 selectedNPC.npcPrefab,
                 Vector3.zero,
                 Quaternion.identity
             );
 
+            // Set the correct name to remove "(Clone)"
+            npcInstance.name = selectedNPC.npcName;
+
+            // You can apply other attributes here, but we don't need an NPC class for it now.
+
+            // Display recruited gang member in UI or elsewhere
             DisplayRecruitedGangMember(newMember);
+
+            // Close the recruitment popup
             ClosePopup();
         }
     }
