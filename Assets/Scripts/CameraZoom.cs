@@ -10,9 +10,8 @@ public class CameraZoom : MonoBehaviour
     public float maxZoom = 15f;
 
     public float panSpeed = 20f; // Speed at which the camera pans
-    public Vector2 panLimit = new Vector2(50f, 50f); // Limit for camera panning
+    public Vector2 panLimit = new Vector2(50f, 50f); 
 
-    // Start is called before the first frame update
     void Start()
     {
         if (mainCamera == null)

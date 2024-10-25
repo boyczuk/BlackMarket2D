@@ -27,11 +27,11 @@ public class DoorScript : MonoBehaviour
 
     void OpenDoor()
     {
-        doorCollider.enabled = false; // Disables collision, allowing NPCs to pass through
+        doorCollider.enabled = false;
     }
 
     void CloseDoor()
     {
-        doorCollider.enabled = true; // Enables collision, blocking NPCs again
+        doorCollider.enabled = true;
     }
 }

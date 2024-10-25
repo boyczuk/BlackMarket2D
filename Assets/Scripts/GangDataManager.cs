@@ -41,7 +41,7 @@ public class GangDataManager : MonoBehaviour
         else
         {
             Debug.LogWarning("gangData.json not found. Creating default organization.");
-            CreateDefaultOrganization(); // Initialize with default data
+            CreateDefaultOrganization();
         }
     }
 
@@ -49,7 +49,6 @@ public class GangDataManager : MonoBehaviour
     {
         criminalOrganization = new CriminalOrganization();
 
-        // Example: Creating a default boss member
         GangMember defaultBoss = new GangMember(
             "Default Boss",
             "Boss",
@@ -59,7 +58,7 @@ public class GangDataManager : MonoBehaviour
         );
         criminalOrganization.boss = defaultBoss;
 
-        SaveGangData(criminalOrganization); // Save this new data to gangData.json
+        SaveGangData(criminalOrganization);
     }
 
     void DisplayExistingGangMembers()

@@ -8,9 +8,9 @@ public class GangMember
     public string mugshotPath;
     public Vector3 position;
     public bool kickedOut;
-    public string npcPrefabName; // Name of the NPC prefab to load
-    public int health; // Example dynamic attribute
-    public string weapon; // Example dynamic attribute
+    public string npcPrefabName;
+    public int health;
+    public string weapon;
 
     [System.NonSerialized]
     public Sprite mugshot;
@@ -21,10 +21,10 @@ public class GangMember
         this.role = role;
         this.position = position;
         this.kickedOut = false;
-        this.npcPrefabName = npcPrefabName; // Save the prefab name
+        this.npcPrefabName = npcPrefabName;
         SetMugshot(mugshot);
-        this.health = 100; // Default health value
-        this.weapon = "Pistol"; // Default weapon value
+        this.health = 100;
+        this.weapon = "Pistol";
     }
 
     public void SetMugshot(Sprite sprite)
