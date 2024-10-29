@@ -5,143 +5,176 @@ using UnityEngine.UI;
 
 public class GangDataManager : MonoBehaviour
 {
-    private string savePath;
-    public CriminalOrganization criminalOrganization;
+    private string playerSavePath;
+    private string enemySavePath;
+    public CriminalOrganization playerGang;
+    public CriminalOrganization enemyGang;
     public GameObject gangMemberDisplayPrefab;
 
     void Start()
     {
-        savePath = Application.persistentDataPath + "/gangData.json";
-        LoadGangData();
-        DisplayExistingGangMembers();
-        SpawnGangMembersInWorld();
+        playerSavePath = Application.persistentDataPath + "/gangData.json";
+        enemySavePath = Application.persistentDataPath + "/enemyGangData.json";
+
+        LoadPlayerGangData();
+        LoadEnemyGangData();
+
+        DisplayExistingGangMembers(playerGang, true);
+        DisplayExistingGangMembers(enemyGang, false);
+
+        SpawnGangMembersInWorld(playerGang, true);
+        SpawnGangMembersInWorld(enemyGang, false);
     }
 
-    public void SaveGangData(CriminalOrganization organization)
+    public void SaveGangData(CriminalOrganization organization, bool isPlayerGang)
     {
+        string path = isPlayerGang ? playerSavePath : enemySavePath;
         string json = JsonUtility.ToJson(organization, true);
-        File.WriteAllText(savePath, json);
+        File.WriteAllText(path, json);
     }
 
-    public void LoadGangData()
+    public void LoadPlayerGangData()
     {
-        if (File.Exists(savePath))
-        {
-            string json = File.ReadAllText(savePath);
-            if (!string.IsNullOrEmpty(json)) // Check if the file has content
-            {
-                criminalOrganization = JsonUtility.FromJson<CriminalOrganization>(json);
-            }
-            else
-            {
-                Debug.LogWarning("gangData.json is empty. Creating default organization.");
-                CreateDefaultOrganization(); // Initialize with default data
-            }
-        }
-        else
-        {
-            Debug.LogWarning("gangData.json not found. Creating default organization.");
-            CreateDefaultOrganization();
-        }
+        playerGang = LoadGangData(playerSavePath) ?? CreateDefaultOrganization();
+        SaveGangData(playerGang, true);
     }
 
-    void CreateDefaultOrganization()
+    public void LoadEnemyGangData()
     {
-        criminalOrganization = new CriminalOrganization();
+        enemyGang = LoadGangData(enemySavePath) ?? CreateDefaultEnemyGang();
+        SaveGangData(enemyGang, false);
+    }
 
-        GangMember defaultBoss = new GangMember(
-            "Default Boss",
+    private CriminalOrganization LoadGangData(string path)
+    {
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            if (!string.IsNullOrEmpty(json))
+            {
+                return JsonUtility.FromJson<CriminalOrganization>(json);
+            }
+        }
+        return null;
+    }
+
+    private CriminalOrganization CreateDefaultOrganization()
+    {
+        CriminalOrganization org = new CriminalOrganization();
+        GangMember defaultBoss = new GangMember("Default Boss", "Boss", null, Vector3.zero, "NPC");
+        org.boss = defaultBoss;
+        return org;
+    }
+
+    private CriminalOrganization CreateDefaultEnemyGang()
+    {
+        CriminalOrganization org = new CriminalOrganization();
+
+        GangMember enemyBoss = new GangMember(
+            "Raul “Razor” Sanchez",
             "Boss",
             null,
-            Vector3.zero,
-            "NPC"
+            new Vector3(10, -5, 0),
+            "EnemyNPCBoss"
         );
-        criminalOrganization.boss = defaultBoss;
+        org.boss = enemyBoss;
 
-        SaveGangData(criminalOrganization);
+        GangMember enemyHitman = new GangMember(
+            "Leon Vega",
+            "Hitman",
+            null,
+            new Vector3(12, -6, 0),
+            "EnemyNPCHitman"
+        );
+        org.underbosses.Add(enemyHitman);
+
+        GangMember enemyCapo = new GangMember(
+            "Miguel “Shorty” Rivera",
+            "Capo",
+            null,
+            new Vector3(11, -7, 0),
+            "EnemyNPCCapo"
+        );
+        org.lieutenants.Add(enemyCapo);
+
+        return org;
     }
 
-    void DisplayExistingGangMembers()
+    void DisplayExistingGangMembers(CriminalOrganization organization, bool isPlayerGang)
     {
-        if (criminalOrganization == null)
+        if (organization == null)
             return;
 
-        if (
-            criminalOrganization.boss != null
-            && !string.IsNullOrEmpty(criminalOrganization.boss.name)
-        )
+        if (organization.boss != null && !string.IsNullOrEmpty(organization.boss.name))
         {
-            criminalOrganization.boss.LoadMugshot();
-            DisplayRecruitedGangMember(criminalOrganization.boss);
+            organization.boss.LoadMugshot();
+            DisplayRecruitedGangMember(organization.boss, isPlayerGang);
         }
 
-        foreach (var underboss in criminalOrganization.underbosses)
+        foreach (var underboss in organization.underbosses)
         {
             if (!string.IsNullOrEmpty(underboss.name))
             {
                 underboss.LoadMugshot();
-                DisplayRecruitedGangMember(underboss);
+                DisplayRecruitedGangMember(underboss, isPlayerGang);
             }
         }
 
-        foreach (var lieutenant in criminalOrganization.lieutenants)
+        foreach (var lieutenant in organization.lieutenants)
         {
             if (!string.IsNullOrEmpty(lieutenant.name))
             {
                 lieutenant.LoadMugshot();
-                DisplayRecruitedGangMember(lieutenant);
+                DisplayRecruitedGangMember(lieutenant, isPlayerGang);
             }
         }
 
-        foreach (var soldier in criminalOrganization.soldiers)
+        foreach (var soldier in organization.soldiers)
         {
             if (!string.IsNullOrEmpty(soldier.name))
             {
                 soldier.LoadMugshot();
-                DisplayRecruitedGangMember(soldier);
+                DisplayRecruitedGangMember(soldier, isPlayerGang);
             }
         }
     }
 
-    void SpawnGangMembersInWorld()
+    void SpawnGangMembersInWorld(CriminalOrganization organization, bool isPlayerControlled)
     {
-        if (criminalOrganization == null)
+        if (organization == null)
             return;
 
-        if (
-            criminalOrganization.boss != null
-            && !string.IsNullOrEmpty(criminalOrganization.boss.name)
-        )
+        if (organization.boss != null && !string.IsNullOrEmpty(organization.boss.name))
         {
-            SpawnMemberInWorld(criminalOrganization.boss);
+            SpawnMemberInWorld(organization.boss, isPlayerControlled);
         }
 
-        foreach (var underboss in criminalOrganization.underbosses)
+        foreach (var underboss in organization.underbosses)
         {
             if (!string.IsNullOrEmpty(underboss.name))
             {
-                SpawnMemberInWorld(underboss);
+                SpawnMemberInWorld(underboss, isPlayerControlled);
             }
         }
 
-        foreach (var lieutenant in criminalOrganization.lieutenants)
+        foreach (var lieutenant in organization.lieutenants)
         {
             if (!string.IsNullOrEmpty(lieutenant.name))
             {
-                SpawnMemberInWorld(lieutenant);
+                SpawnMemberInWorld(lieutenant, isPlayerControlled);
             }
         }
 
-        foreach (var soldier in criminalOrganization.soldiers)
+        foreach (var soldier in organization.soldiers)
         {
             if (!string.IsNullOrEmpty(soldier.name))
             {
-                SpawnMemberInWorld(soldier);
+                SpawnMemberInWorld(soldier, isPlayerControlled);
             }
         }
     }
 
-    void SpawnMemberInWorld(GangMember member)
+    void SpawnMemberInWorld(GangMember member, bool isPlayerControlled)
     {
         if (string.IsNullOrEmpty(member.npcPrefabName))
         {
@@ -156,16 +189,21 @@ public class GangDataManager : MonoBehaviour
         {
             GameObject npcInstance = Instantiate(npcPrefab, member.position, Quaternion.identity);
             npcInstance.name = member.name;
-        }
-        else
-        {
-            Debug.LogError("Failed to load NPC prefab: " + member.npcPrefabName);
+
+            NPCMovement npcMovement = npcInstance.GetComponent<NPCMovement>();
+            if (npcMovement != null)
+            {
+                npcMovement.isInPlayerGang = isPlayerControlled; // Set based on gang membership
+                npcMovement.isPlayerControlled = isPlayerControlled; // Tracks if NPC is following player commands
+            }
         }
     }
 
-    void DisplayRecruitedGangMember(GangMember recruitedNPC)
+    void DisplayRecruitedGangMember(GangMember recruitedNPC, bool isPlayerGang)
     {
-        Transform gangMembersContainer = GameObject.Find("GangMembersPanel")?.transform;
+        Transform gangMembersContainer = GameObject
+            .Find(isPlayerGang ? "GangMembersPanel" : "EnemyGangPanel")
+            ?.transform;
         GameObject gangMemberDisplay = Instantiate(gangMemberDisplayPrefab, gangMembersContainer);
 
         TextMeshProUGUI nameText = gangMemberDisplay

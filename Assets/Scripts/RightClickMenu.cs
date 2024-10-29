@@ -1,12 +1,12 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI; // Make sure you include this for TextMeshPro
+using UnityEngine.UI;
 
 public class RightClickMenu : MonoBehaviour
 {
     public GameObject rightClickMenu;
     public Button moveButton;
-    public TextMeshProUGUI npcNameDisplay; // Now directly the TextMeshPro object
+    public TextMeshProUGUI npcNameDisplay;
 
     private GameObject selectedNPC;
     private bool moveCommandActive = false;
@@ -14,7 +14,7 @@ public class RightClickMenu : MonoBehaviour
     private void Start()
     {
         rightClickMenu.SetActive(false);
-        npcNameDisplay.gameObject.SetActive(false); // Ensure the name display is hidden initially
+        npcNameDisplay.gameObject.SetActive(false);
         moveButton.onClick.AddListener(OnMoveButtonClicked);
     }
 
@@ -26,10 +26,14 @@ public class RightClickMenu : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
 
-            if (hit.collider != null && hit.collider.CompareTag("NPC"))
+            if (hit.collider != null)
             {
-                selectedNPC = hit.collider.gameObject;
-                ShowMenu(hit.collider.transform.position);
+                NPCMovement npcMovement = hit.collider.GetComponent<NPCMovement>();
+                if (npcMovement != null && npcMovement.isInPlayerGang) // Check if NPC is in the player's gang
+                {
+                    selectedNPC = hit.collider.gameObject;
+                    ShowMenu(hit.collider.transform.position);
+                }
             }
         }
 
@@ -38,12 +42,16 @@ public class RightClickMenu : MonoBehaviour
         RaycastHit2D hoverHit = Physics2D.Raycast(hoverRay.origin, hoverRay.direction);
         if (hoverHit.collider != null && hoverHit.collider.CompareTag("NPC"))
         {
-            DisplayNPCName(hoverHit.collider.transform.position, hoverHit.collider.name);
-            npcNameDisplay.gameObject.SetActive(true); // Enable display on hover
+            NPCMovement npcMovement = hoverHit.collider.GetComponent<NPCMovement>();
+            if (npcMovement != null && npcMovement.isInPlayerGang)
+            {
+                DisplayNPCName(hoverHit.collider.transform.position, hoverHit.collider.name);
+                npcNameDisplay.gameObject.SetActive(true);
+            }
         }
         else
         {
-            npcNameDisplay.gameObject.SetActive(false); // Disable display when not hovering
+            npcNameDisplay.gameObject.SetActive(false);
         }
 
         // Move NPC to position logic
@@ -113,7 +121,7 @@ public class RightClickMenu : MonoBehaviour
 
         RectTransform rectTransform = npcNameDisplay.GetComponent<RectTransform>();
         rectTransform.localPosition = localPoint;
-        npcNameDisplay.text = npcName; // Set the NPC's name directly on the TextMeshPro object
+        npcNameDisplay.text = npcName;
     }
 
     private bool IsClickInsideUI(GameObject uiElement)

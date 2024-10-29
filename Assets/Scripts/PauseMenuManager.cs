@@ -61,9 +61,9 @@ public class PauseMenuManager : MonoBehaviour
 
     void SaveGame()
     {
-        if (gangDataManager != null && gangDataManager.criminalOrganization != null)
+        if (gangDataManager != null && gangDataManager.playerGang != null)
         {
-            foreach (var member in gangDataManager.criminalOrganization.GetAllMembers())
+            foreach (var member in gangDataManager.playerGang.GetAllMembers())
             {
                 GameObject npcObject = GameObject.Find(member.name);
                 if (npcObject != null)
@@ -72,7 +72,7 @@ public class PauseMenuManager : MonoBehaviour
                 }
             }
 
-            gangDataManager.SaveGangData(gangDataManager.criminalOrganization);
+            gangDataManager.SaveGangData(gangDataManager.playerGang, true);
             Debug.Log("Game Saved!");
         }
     }

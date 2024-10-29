@@ -25,15 +25,15 @@ public class PopupManager : MonoBehaviour
     private GameObject activeProfilePanel;
 
     private GangDataManager gangDataManager;
-    private CriminalOrganization criminalOrganization;
+    private CriminalOrganization playerGang;
     private RecruitableNPC selectedNPC;
 
     void Start()
     {
         gangDataManager = FindObjectOfType<GangDataManager>();
-        if (gangDataManager != null && gangDataManager.criminalOrganization != null)
+        if (gangDataManager != null && gangDataManager.playerGang != null)
         {
-            criminalOrganization = gangDataManager.criminalOrganization;
+            playerGang = gangDataManager.playerGang;
             DisplayGangHierarchy();
         }
 
@@ -114,40 +114,30 @@ public class PopupManager : MonoBehaviour
     {
         if (selectedNPC != null)
         {
-            // Create a new GangMember with relevant data
             GangMember newMember = new GangMember(
-                selectedNPC.npcName, // NPC name
-                "Soldier", // Role
-                selectedNPC.npcMugshot, // Mugshot
-                Vector3.zero, // Default position
-                selectedNPC.npcPrefab.name // Prefab name
+                selectedNPC.npcName,
+                "Soldier",
+                selectedNPC.npcMugshot,
+                Vector3.zero,
+                selectedNPC.npcPrefab.name
             );
 
-            // Set the mugshot for display
             newMember.SetMugshot(selectedNPC.npcMugshot);
 
-            // Add this new member to the organization
-            criminalOrganization.AddMember(newMember);
+            playerGang.AddMember(newMember);
 
-            // Save gang data
-            gangDataManager.SaveGangData(criminalOrganization);
+            gangDataManager.SaveGangData(playerGang, true);
 
-            // Spawn the NPC in the game world
             GameObject npcInstance = Instantiate(
                 selectedNPC.npcPrefab,
                 Vector3.zero,
                 Quaternion.identity
             );
 
-            // Set the correct name to remove "(Clone)"
             npcInstance.name = selectedNPC.npcName;
 
-            // You can apply other attributes here, but we don't need an NPC class for it now.
-
-            // Display recruited gang member in UI or elsewhere
             DisplayRecruitedGangMember(newMember);
 
-            // Close the recruitment popup
             ClosePopup();
         }
     }
@@ -189,14 +179,14 @@ public class PopupManager : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        if (criminalOrganization != null && criminalOrganization.boss != null)
+        if (playerGang != null && playerGang.boss != null)
         {
-            CreateHierarchyEntry(criminalOrganization.boss, hierarchyPanel.transform, 0, 0);
+            CreateHierarchyEntry(playerGang.boss, hierarchyPanel.transform, 0, 0);
         }
 
-        DisplayMembersInPyramid(criminalOrganization.underbosses.ToArray(), 1);
-        DisplayMembersInPyramid(criminalOrganization.lieutenants.ToArray(), 2);
-        DisplayMembersInPyramid(criminalOrganization.soldiers.ToArray(), 3);
+        DisplayMembersInPyramid(playerGang.underbosses.ToArray(), 1);
+        DisplayMembersInPyramid(playerGang.lieutenants.ToArray(), 2);
+        DisplayMembersInPyramid(playerGang.soldiers.ToArray(), 3);
     }
 
     void DisplayMembersInPyramid(GangMember[] members, int row)
@@ -221,8 +211,8 @@ public class PopupManager : MonoBehaviour
 
         GameObject memberDisplay = Instantiate(hierarchyMemberPrefab, parent);
 
-        float baseYOffset = 130f; // Highest point
-        float yOffset = baseYOffset - row * 100f; // Spacing (adjust later for dynamic ranks if you create custom roles?)
+        float baseYOffset = 130f;
+        float yOffset = baseYOffset - row * 100f;
 
         memberDisplay.transform.localPosition = new Vector3(xOffset, yOffset, 0);
 
@@ -316,27 +306,27 @@ public class PopupManager : MonoBehaviour
     {
         Debug.Log($"Kicking out member: {member.name}");
 
-        if (criminalOrganization.boss == member)
+        if (playerGang.boss == member)
         {
-            criminalOrganization.boss = null;
+            playerGang.boss = null;
         }
-        else if (criminalOrganization.underbosses.Contains(member))
+        else if (playerGang.underbosses.Contains(member))
         {
-            criminalOrganization.underbosses.Remove(member);
+            playerGang.underbosses.Remove(member);
         }
-        else if (criminalOrganization.lieutenants.Contains(member))
+        else if (playerGang.lieutenants.Contains(member))
         {
-            criminalOrganization.lieutenants.Remove(member);
+            playerGang.lieutenants.Remove(member);
         }
-        else if (criminalOrganization.soldiers.Contains(member))
+        else if (playerGang.soldiers.Contains(member))
         {
-            criminalOrganization.soldiers.Remove(member);
+            playerGang.soldiers.Remove(member);
         }
 
         member.kickedOut = true;
-        criminalOrganization.kickedOutMembers.Add(member);
+        playerGang.kickedOutMembers.Add(member);
 
-        gangDataManager.SaveGangData(criminalOrganization);
+        gangDataManager.SaveGangData(playerGang, true);
 
         if (activeProfilePanel != null)
         {
@@ -351,16 +341,16 @@ public class PopupManager : MonoBehaviour
         switch (member.role)
         {
             case "Boss":
-                criminalOrganization.boss = null;
+                playerGang.boss = null;
                 break;
             case "Underboss":
-                criminalOrganization.underbosses.Remove(member);
+                playerGang.underbosses.Remove(member);
                 break;
             case "Lieutenant":
-                criminalOrganization.lieutenants.Remove(member);
+                playerGang.lieutenants.Remove(member);
                 break;
             case "Soldier":
-                criminalOrganization.soldiers.Remove(member);
+                playerGang.soldiers.Remove(member);
                 break;
         }
 
@@ -368,20 +358,20 @@ public class PopupManager : MonoBehaviour
         switch (newRole)
         {
             case "Boss":
-                criminalOrganization.boss = member;
+                playerGang.boss = member;
                 break;
             case "Underboss":
-                criminalOrganization.underbosses.Add(member);
+                playerGang.underbosses.Add(member);
                 break;
             case "Lieutenant":
-                criminalOrganization.lieutenants.Add(member);
+                playerGang.lieutenants.Add(member);
                 break;
             case "Soldier":
-                criminalOrganization.soldiers.Add(member);
+                playerGang.soldiers.Add(member);
                 break;
         }
 
-        gangDataManager.SaveGangData(criminalOrganization);
+        gangDataManager.SaveGangData(playerGang, true);
 
         DisplayGangHierarchy();
 

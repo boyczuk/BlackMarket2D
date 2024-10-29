@@ -10,6 +10,9 @@ public class NPCMovement : MonoBehaviour
     public float stuckThreshold = 0.1f;
     public float recalculateOnCollisionTime = 0.5f;
 
+    public bool isInPlayerGang = false; // Indicates if NPC is part of the player's gang
+    public bool isPlayerControlled = false; // Tracks if the NPC is currently following a player command
+
     private List<Node> path;
     private GridManager gridManager;
     private Pathfinding pathfinding;
@@ -19,7 +22,6 @@ public class NPCMovement : MonoBehaviour
     private float waitTimer;
     private Vector3 lastPosition;
     private float stuckTimer = 0f;
-    private bool isPlayerControlled = false;
 
     void Start()
     {
@@ -107,14 +109,9 @@ public class NPCMovement : MonoBehaviour
             {
                 path = null;
                 pathInProgress = false; 
-                if (isPlayerControlled)
+                if (!isPlayerControlled)
                 {
-                    isPlayerControlled = false;
-                    Debug.Log("Reached player target.");
-                }
-                else
-                {
-                    isWandering = false;
+                    isWandering = true;
                     reachedWanderTarget = true;
                 }
             }
