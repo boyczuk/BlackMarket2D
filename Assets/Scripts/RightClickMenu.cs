@@ -1,21 +1,26 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
+using UnityEngine.UI; // Make sure you include this for TextMeshPro
 
 public class RightClickMenu : MonoBehaviour
 {
     public GameObject rightClickMenu;
     public Button moveButton;
+    public TextMeshProUGUI npcNameDisplay; // Now directly the TextMeshPro object
+
     private GameObject selectedNPC;
     private bool moveCommandActive = false;
 
     private void Start()
     {
         rightClickMenu.SetActive(false);
+        npcNameDisplay.gameObject.SetActive(false); // Ensure the name display is hidden initially
         moveButton.onClick.AddListener(OnMoveButtonClicked);
     }
 
     void Update()
     {
+        // Detect right-click for context menu
         if (Input.GetMouseButtonDown(1) && !moveCommandActive)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -28,6 +33,20 @@ public class RightClickMenu : MonoBehaviour
             }
         }
 
+        // Check if hovering over an NPC to show name
+        Ray hoverRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit2D hoverHit = Physics2D.Raycast(hoverRay.origin, hoverRay.direction);
+        if (hoverHit.collider != null && hoverHit.collider.CompareTag("NPC"))
+        {
+            DisplayNPCName(hoverHit.collider.transform.position, hoverHit.collider.name);
+            npcNameDisplay.gameObject.SetActive(true); // Enable display on hover
+        }
+        else
+        {
+            npcNameDisplay.gameObject.SetActive(false); // Disable display when not hovering
+        }
+
+        // Move NPC to position logic
         if (moveCommandActive && Input.GetMouseButtonDown(0))
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -79,6 +98,22 @@ public class RightClickMenu : MonoBehaviour
             rightClickMenu.SetActive(false);
             moveCommandActive = false;
         }
+    }
+
+    void DisplayNPCName(Vector2 npcPosition, string npcName)
+    {
+        Vector3 screenPosition = Camera.main.WorldToScreenPoint(npcPosition);
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            npcNameDisplay.transform.parent.GetComponent<RectTransform>(),
+            screenPosition,
+            Camera.main,
+            out Vector2 localPoint
+        );
+
+        RectTransform rectTransform = npcNameDisplay.GetComponent<RectTransform>();
+        rectTransform.localPosition = localPoint;
+        npcNameDisplay.text = npcName; // Set the NPC's name directly on the TextMeshPro object
     }
 
     private bool IsClickInsideUI(GameObject uiElement)

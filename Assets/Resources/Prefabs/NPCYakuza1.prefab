@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 8.63, y: 2.89, z: 0}
-  m_LocalScale: {x: 2, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -129,6 +129,8 @@ MonoBehaviour:
   speed: 2
   wanderRadius: 5
   baseWaitTimeAtTarget: 1
+  stuckThreshold: 0.1
+  recalculateOnCollisionTime: 0.5
 --- !u!61 &1101212411070821529
 BoxCollider2D:
   m_ObjectHideFlags: 0

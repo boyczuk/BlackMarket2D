@@ -79,7 +79,7 @@ public class GridManager : MonoBehaviour
     }
 
     // Visualize the grid in the editor with colors for walkable and unwalkable nodes
-    void OnDrawGizmos()
+    /*void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, gridWorldSize.y, 1));
 
@@ -101,5 +101,5 @@ public class GridManager : MonoBehaviour
                 Gizmos.DrawCube(node.worldPosition, Vector3.one * (nodeDiameter - .1f));
             }
         }
-    }
+    }*/
 }
