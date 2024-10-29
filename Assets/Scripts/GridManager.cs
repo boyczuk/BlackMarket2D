@@ -8,8 +8,8 @@ public class GridManager : MonoBehaviour
     public float nodeRadius = 1f;
 
     public Node[,] grid;
-    public List<Node> path;  
-    
+    public List<Node> path;
+
     float nodeDiameter;
     int gridSizeX, gridSizeY;
 
@@ -78,7 +78,7 @@ public class GridManager : MonoBehaviour
         return grid[x, y];
     }
 
-    // Visualize the grid in the editor
+    // Visualize the grid in the editor with colors for walkable and unwalkable nodes
     void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, gridWorldSize.y, 1));
@@ -87,6 +87,7 @@ public class GridManager : MonoBehaviour
         {
             foreach (Node n in grid)
             {
+                // Draw unwalkable nodes in red and walkable nodes in white
                 Gizmos.color = (n.isWalkable) ? Color.white : Color.red;
                 Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - .1f));
             }

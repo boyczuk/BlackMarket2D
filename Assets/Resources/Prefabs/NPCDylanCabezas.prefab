@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5736804624457375962}
   - component: {fileID: 1289445473970059493}
   - component: {fileID: 1101212411070821529}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: NPCDylanCabezas
   m_TagString: NPC
   m_Icon: {fileID: 0}
@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 8.63, y: 2.89, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 2, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -167,7 +167,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.0003633499, y: -0.39522487}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -178,5 +178,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.43605423, y: 1.2080153}
+  m_Size: {x: 0.4609909, y: 0.9420242}
   m_EdgeRadius: 0

@@ -1,101 +1,80 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class NPCMovement : MonoBehaviour
 {
-    public float speed = 2f; 
-    public float wanderRadius = 5f; 
-    public float baseWaitTimeAtTarget = 1f; 
-    public float collisionAvoidanceDistance = 0.5f;
-    public float raycastDistance = 1f;
-    public float stuckThreshold = 2f;
-    public float jitterThreshold = 0.05f; 
-    public float recalculateOnCollisionTime = 1f; 
-    public float tightSpaceAvoidanceDistance = 1f; 
+    public float speed = 2f;
+    public float wanderRadius = 5f;
+    public float baseWaitTimeAtTarget = 1f;
+    public float stuckThreshold = 0.1f;
+    public float recalculateOnCollisionTime = 0.5f;
 
-    private int targetIndex;
     private List<Node> path;
     private GridManager gridManager;
     private Pathfinding pathfinding;
     private bool isWandering = false;
+    private bool reachedWanderTarget = true; 
+    private bool pathInProgress = false; 
     private float waitTimer;
-    private float randomSpeed;
-    private float randomWaitTime;
-
-    private bool isPlayerControlled = false; 
-    private BoxCollider2D npcCollider;
-
     private Vector3 lastPosition;
     private float stuckTimer = 0f;
-
-    private float collisionTimer = 0f;
-    private bool isCollidingWithWall = false; 
+    private bool isPlayerControlled = false;
 
     void Start()
     {
         gridManager = FindObjectOfType<GridManager>();
         pathfinding = FindObjectOfType<Pathfinding>();
-
-        randomSpeed = speed * Random.Range(0.75f, 1.25f);
-        randomWaitTime = baseWaitTimeAtTarget * Random.Range(0.75f, 1.25f);
-
-        npcCollider = GetComponent<BoxCollider2D>(); 
-        waitTimer = randomWaitTime;
         StartWandering();
-
         lastPosition = transform.position;
     }
 
     void Update()
     {
-        if (isPlayerControlled)
+        if (path != null && path.Count > 0)
         {
-            if (path != null)
-            {
-                MoveAlongPath();
-            }
+            MoveAlongPath();
         }
-        else
+        else if (!isPlayerControlled && !pathInProgress && reachedWanderTarget)
         {
-            if (path != null)
+            waitTimer -= Time.deltaTime;
+            if (waitTimer <= 0f)
             {
-                MoveAlongPath();
-            }
-            else if (!isWandering)
-            {
-                waitTimer -= Time.deltaTime;
-
-                if (waitTimer <= 0f)
-                {
-                    randomWaitTime = baseWaitTimeAtTarget * Random.Range(0.75f, 1.25f);
-                    randomSpeed = speed * Random.Range(0.75f, 1.25f);
-
-                    StartWandering();
-                    waitTimer = randomWaitTime;
-                }
-            }
-        }
-
-        if (isCollidingWithWall)
-        {
-            collisionTimer += Time.deltaTime;
-            if (collisionTimer > recalculateOnCollisionTime)
-            {
-                RecalculatePath();
-                isCollidingWithWall = false;
+                StartWandering();
+                waitTimer = baseWaitTimeAtTarget;
             }
         }
     }
 
     public void SetTargetPosition(Vector2 targetPosition)
     {
+        StopAllCoroutines();
         isPlayerControlled = true;
+        isWandering = false;
+        reachedWanderTarget = false;
+        pathInProgress = true; 
         path = pathfinding.FindPath(transform.position, targetPosition);
-        targetIndex = 0;
+
+        if (path == null || path.Count == 0)
+        {
+            Debug.LogWarning("No valid path found to target position.");
+            return;
+        }
+        StartCoroutine(ResumeWanderingAfterDelay());
+    }
+
+    private IEnumerator ResumeWanderingAfterDelay()
+    {
+        yield return new WaitForSeconds(5f);
+        isPlayerControlled = false;
+        reachedWanderTarget = true;
+        StartWandering();
     }
 
     void StartWandering()
     {
+        if (pathInProgress) return; // Prevents new wandering path from interrupting
+        
         Vector2 randomDirection = Random.insideUnitCircle.normalized * wanderRadius;
         Vector2 wanderTarget = (Vector2)transform.position + randomDirection;
 
@@ -103,92 +82,52 @@ public class NPCMovement : MonoBehaviour
         if (wanderNode != null && wanderNode.isWalkable)
         {
             path = pathfinding.FindPath(transform.position, wanderTarget);
-            targetIndex = 0;
+            if (path == null || path.Count == 0)
+            {
+                Debug.LogWarning("No valid path found for wandering.");
+                return;
+            }
             isWandering = true;
+            reachedWanderTarget = false;
+            pathInProgress = true;
         }
     }
 
     void MoveAlongPath()
     {
-        if (targetIndex >= path.Count)
-            return;
+        if (path == null || path.Count == 0) return;
 
-        Vector3 targetPosition = path[targetIndex].worldPosition;
+        Vector3 targetPosition = path[0].worldPosition;
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
-        if (IsWallAhead())
+        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
-            AvoidWallOrTightSpace();
-        }
-
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            targetPosition, 
-            isPlayerControlled ? speed * Time.deltaTime : randomSpeed * Time.deltaTime
-        );
-
-        if (Vector3.Distance(transform.position, targetPosition) < 0.05f)
-        {
-            targetIndex++;
-            if (targetIndex >= path.Count)
+            path.RemoveAt(0);
+            if (path.Count == 0)
             {
                 path = null;
-
+                pathInProgress = false; 
                 if (isPlayerControlled)
                 {
                     isPlayerControlled = false;
+                    Debug.Log("Reached player target.");
                 }
                 else
                 {
                     isWandering = false;
-                    waitTimer = randomWaitTime;
+                    reachedWanderTarget = true;
                 }
             }
         }
 
-        if (IsStuck())
-        {
-            RecalculatePath();
-        }
-    }
-
-    bool IsWallAhead()
-    {
-        Vector2 direction = ((Vector2)path[targetIndex].worldPosition - (Vector2)transform.position).normalized;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, raycastDistance, gridManager.unwalkableMask);
-
-        return hit.collider != null;
-    }
-
-    void AvoidWallOrTightSpace()
-    {
-        if (IsInTightSpace())
-        {
-            Vector2 avoidanceDirection = Vector2.Perpendicular(((Vector2)path[targetIndex].worldPosition - (Vector2)transform.position).normalized);
-            transform.position += (Vector3)avoidanceDirection * tightSpaceAvoidanceDistance;
-        }
-        else
-        {
-            Vector2 avoidanceDirection = Vector2.Perpendicular(((Vector2)path[targetIndex].worldPosition - (Vector2)transform.position).normalized);
-            transform.position += (Vector3)avoidanceDirection * collisionAvoidanceDistance;
-        }
-    }
-
-    bool IsInTightSpace()
-    {
-        Vector2 leftCheck = transform.position + Vector3.left * raycastDistance;
-        Vector2 rightCheck = transform.position + Vector3.right * raycastDistance;
-
-        RaycastHit2D leftHit = Physics2D.Raycast(leftCheck, Vector2.left, raycastDistance, gridManager.unwalkableMask);
-        RaycastHit2D rightHit = Physics2D.Raycast(rightCheck, Vector2.right, raycastDistance, gridManager.unwalkableMask);
-
-        return leftHit.collider != null && rightHit.collider != null;
-    }
-
-    bool IsStuck()
-    {
-        if (Vector3.Distance(transform.position, lastPosition) < jitterThreshold)
+        if (Vector3.Distance(transform.position, lastPosition) < stuckThreshold)
         {
             stuckTimer += Time.deltaTime;
+            if (stuckTimer > recalculateOnCollisionTime)
+            {
+                RecalculatePath();
+                stuckTimer = 0f;
+            }
         }
         else
         {
@@ -196,16 +135,13 @@ public class NPCMovement : MonoBehaviour
         }
 
         lastPosition = transform.position;
-
-        return stuckTimer > stuckThreshold;
     }
 
     void RecalculatePath()
     {
         if (isPlayerControlled)
         {
-            path = pathfinding.FindPath(transform.position, path[targetIndex].worldPosition);
-            targetIndex = 0;
+            path = pathfinding.FindPath(transform.position, path != null && path.Count > 0 ? path[path.Count - 1].worldPosition : transform.position);
         }
         else
         {
@@ -213,25 +149,15 @@ public class NPCMovement : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    void OnDrawGizmos()
     {
-        if (collision.gameObject.CompareTag("Wall"))
+        if (path != null)
         {
-            isCollidingWithWall = true;
-            collisionTimer = 0f;
-        }
-
-        if (collision.gameObject.CompareTag("NPC"))
-        {
-            Physics2D.IgnoreCollision(collision.collider, GetComponent<Collider2D>());
-        }
-    }
-
-    void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Wall"))
-        {
-            isCollidingWithWall = false;
+            Gizmos.color = Color.green;
+            for (int i = 0; i < path.Count - 1; i++)
+            {
+                Gizmos.DrawLine(path[i].worldPosition, path[i + 1].worldPosition);
+            }
         }
     }
 }

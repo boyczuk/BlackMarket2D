@@ -29,6 +29,9 @@ Thumbs.db
 *.opendb
 *.VC.db
 
+# Ignore specific scene file
+Assets/Scenes/SampleScene.unity
+
 # Rider project files
 .idea/
 
