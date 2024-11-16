@@ -1,5 +1,5 @@
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class RightClickMenu : MonoBehaviour
@@ -10,18 +10,31 @@ public class RightClickMenu : MonoBehaviour
 
     private GameObject selectedNPC;
     private bool moveCommandActive = false;
+    private bool punchCommandActive = false;
+    private bool shootCommandActive = false;
+    private GameObject attackingNPC;
+
+    public Button punchButton;
+    public Button shootButton;
 
     private void Start()
     {
         rightClickMenu.SetActive(false);
         npcNameDisplay.gameObject.SetActive(false);
         moveButton.onClick.AddListener(OnMoveButtonClicked);
+        punchButton.onClick.AddListener(OnPunchButtonClicked);
+        shootButton.onClick.AddListener(onShootButtonClicked);
     }
 
     void Update()
     {
         // Detect right-click for context menu
-        if (Input.GetMouseButtonDown(1) && !moveCommandActive)
+        if (
+            Input.GetMouseButtonDown(1)
+            && !moveCommandActive
+            && !punchCommandActive
+            && !shootCommandActive
+        )
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
@@ -67,6 +80,33 @@ public class RightClickMenu : MonoBehaviour
                 rightClickMenu.SetActive(false);
             }
         }
+
+        // Combat targeting logic for Punch and Shoot
+        if ((punchCommandActive || shootCommandActive) && Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
+
+            if (hit.collider != null)
+            {
+                NPCMovement targetNPC = hit.collider.GetComponent<NPCMovement>();
+                if (targetNPC != null) // Ensure a valid NPC is clicked
+                {
+                    if (punchCommandActive)
+                    {
+                        ExecutePunch(attackingNPC, targetNPC.gameObject);
+                    }
+                    else if (shootCommandActive)
+                    {
+                        ExecuteShoot(attackingNPC, targetNPC.gameObject);
+                    }
+                }
+            }
+
+            // Reset combat state after the action
+            punchCommandActive = false;
+            shootCommandActive = false;
+        }
     }
 
     void ShowMenu(Vector2 npcPosition)
@@ -84,7 +124,42 @@ public class RightClickMenu : MonoBehaviour
         rectTransform.localPosition = localPoint;
 
         rightClickMenu.SetActive(true);
-        Debug.Log($"Showing menu at screen position: {screenPosition}, local position: {localPoint}");
+        Debug.Log(
+            $"Showing menu at screen position: {screenPosition}, local position: {localPoint}"
+        );
+    }
+
+    void ExecutePunch(GameObject attacker, GameObject target) {
+        Health targetHealth = target.GetComponent<Health>();
+        if (targetHealth != null) {
+            int punchDamage = 10;
+            targetHealth.TakeDamage(punchDamage);
+            Debug.Log($"{attacker.name} punched {target.name} for {punchDamage} damage.");
+        }
+    }
+
+    void ExecuteShoot(GameObject attacker, GameObject target) {
+        Health targetHealth = target.GetComponent<Health>();
+        if (targetHealth != null) {
+            int gunDamage = 50;
+            targetHealth.TakeDamage(gunDamage);
+            Debug.Log($"{attacker.name} shot {target.name} for {gunDamage} damage.");
+        }
+    }
+
+    void OnPunchButtonClicked()
+    {
+        punchCommandActive = true;
+        attackingNPC = selectedNPC;
+        rightClickMenu.SetActive(false);
+        Debug.Log("Punch command active. Select a target.");
+    }
+
+    void onShootButtonClicked()
+    {
+        shootCommandActive = true;
+        attackingNPC = selectedNPC;
+        rightClickMenu.SetActive(false);
     }
 
     void OnMoveButtonClicked()
@@ -127,6 +202,10 @@ public class RightClickMenu : MonoBehaviour
     private bool IsClickInsideUI(GameObject uiElement)
     {
         RectTransform rectTransform = uiElement.GetComponent<RectTransform>();
-        return RectTransformUtility.RectangleContainsScreenPoint(rectTransform, Input.mousePosition, Camera.main);
+        return RectTransformUtility.RectangleContainsScreenPoint(
+            rectTransform,
+            Input.mousePosition,
+            Camera.main
+        );
     }
 }

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5736804624457375962}
   - component: {fileID: 1289445473970059493}
   - component: {fileID: 1101212411070821529}
+  - component: {fileID: 965565879908747415}
   m_Layer: 0
   m_Name: NPCYakuza2
   m_TagString: NPC
@@ -131,6 +132,8 @@ MonoBehaviour:
   baseWaitTimeAtTarget: 1
   stuckThreshold: 0.1
   recalculateOnCollisionTime: 0.5
+  isInPlayerGang: 0
+  isPlayerControlled: 0
 --- !u!61 &1101212411070821529
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -176,3 +179,16 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.4609909, y: 0.9420242}
   m_EdgeRadius: 0
+--- !u!114 &965565879908747415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7576355728295054390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb966dec0369d4a4091065a91906ea5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
