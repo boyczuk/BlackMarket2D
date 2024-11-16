@@ -194,7 +194,7 @@ public class GangDataManager : MonoBehaviour
             if (npcMovement != null)
             {
                 npcMovement.isInPlayerGang = isPlayerControlled; // Set based on gang membership
-                npcMovement.isPlayerControlled = isPlayerControlled; // Tracks if NPC is following player commands
+                npcMovement.isPlayerControlled = false; // Tracks if NPC is following player commands
             }
         }
     }
