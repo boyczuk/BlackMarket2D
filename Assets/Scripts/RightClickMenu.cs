@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,7 +29,6 @@ public class RightClickMenu : MonoBehaviour
 
     void Update()
     {
-        // Detect right-click for context menu
         if (
             Input.GetMouseButtonDown(1)
             && !moveCommandActive
@@ -42,7 +42,7 @@ public class RightClickMenu : MonoBehaviour
             if (hit.collider != null)
             {
                 NPCMovement npcMovement = hit.collider.GetComponent<NPCMovement>();
-                if (npcMovement != null && npcMovement.isInPlayerGang) // Check if NPC is in the player's gang
+                if (npcMovement != null && npcMovement.isInPlayerGang) 
                 {
                     selectedNPC = hit.collider.gameObject;
                     ShowMenu(hit.collider.transform.position);
@@ -50,7 +50,6 @@ public class RightClickMenu : MonoBehaviour
             }
         }
 
-        // Check if hovering over an NPC to show name
         Ray hoverRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit2D hoverHit = Physics2D.Raycast(hoverRay.origin, hoverRay.direction);
         if (hoverHit.collider != null && hoverHit.collider.CompareTag("NPC"))
@@ -67,7 +66,6 @@ public class RightClickMenu : MonoBehaviour
             npcNameDisplay.gameObject.SetActive(false);
         }
 
-        // Move NPC to position logic
         if (moveCommandActive && Input.GetMouseButtonDown(0))
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -81,7 +79,6 @@ public class RightClickMenu : MonoBehaviour
             }
         }
 
-        // Combat targeting logic for Punch and Shoot
         if ((punchCommandActive || shootCommandActive) && Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -90,7 +87,7 @@ public class RightClickMenu : MonoBehaviour
             if (hit.collider != null)
             {
                 NPCMovement targetNPC = hit.collider.GetComponent<NPCMovement>();
-                if (targetNPC != null) // Ensure a valid NPC is clicked
+                if (targetNPC != null)
                 {
                     if (punchCommandActive)
                     {
@@ -103,7 +100,6 @@ public class RightClickMenu : MonoBehaviour
                 }
             }
 
-            // Reset combat state after the action
             punchCommandActive = false;
             shootCommandActive = false;
         }
@@ -129,18 +125,99 @@ public class RightClickMenu : MonoBehaviour
         );
     }
 
-    void ExecutePunch(GameObject attacker, GameObject target) {
+    void ExecutePunch(GameObject attacker, GameObject target)
+    {
+        float requiredDistance = 1.5f; 
+        NPCMovement npcMovement = attacker.GetComponent<NPCMovement>();
+
+        if (npcMovement == null)
+        {
+            Debug.LogWarning($"Attacker {attacker.name} has no NPCMovement component.");
+            return;
+        }
+
+        float currentDistance = Vector2.Distance(
+            attacker.transform.position,
+            target.transform.position
+        );
+
+        if (currentDistance > requiredDistance)
+        {
+            Debug.Log($"{attacker.name} is too far to punch {target.name}. Moving closer.");
+            npcMovement.SetTargetPosition(target.transform.position);
+
+            StartCoroutine(MonitorProximityAndPunch(attacker, target, requiredDistance));
+        }
+        else
+        {
+            PerformPunch(attacker, target);
+        }
+    }
+
+    IEnumerator MonitorProximityAndPunch(
+        GameObject attacker,
+        GameObject target,
+        float requiredDistance
+    )
+    {
+        NPCMovement npcMovement = attacker.GetComponent<NPCMovement>();
+        while (
+            Vector2.Distance(attacker.transform.position, target.transform.position)
+            > requiredDistance
+        )
+        {
+            npcMovement.SetTargetPosition(target.transform.position);
+            yield return null; 
+        }
+
+        PerformPunch(attacker, target);
+    }
+
+    void PerformPunch(GameObject attacker, GameObject target)
+    {
         Health targetHealth = target.GetComponent<Health>();
-        if (targetHealth != null) {
-            int punchDamage = 10;
+        if (targetHealth != null)
+        {
+            int punchDamage = 10; 
             targetHealth.TakeDamage(punchDamage);
             Debug.Log($"{attacker.name} punched {target.name} for {punchDamage} damage.");
         }
     }
 
-    void ExecuteShoot(GameObject attacker, GameObject target) {
+    void ExecuteShoot(GameObject attacker, GameObject target)
+    {
+        float maxRange = 10f;
+        float currentDistance = Vector2.Distance(
+            attacker.transform.position,
+            target.transform.position
+        );
+
+        if (currentDistance > maxRange)
+        {
+            Debug.Log($"{attacker.name} is too far to shoot {target.name}.");
+            return;
+        }
+
+        Vector2 direction = (target.transform.position - attacker.transform.position).normalized;
+        int wallLayerMask = LayerMask.GetMask("Walls");
+        RaycastHit2D hit = Physics2D.Raycast(
+            attacker.transform.position,
+            direction,
+            maxRange,
+            wallLayerMask
+        );
+
+        if (hit.collider != null && hit.collider.CompareTag("Wall"))
+        {
+            Debug.Log(
+                $"{attacker.name} has no clear line of sight to {target.name}. Blocked by: {hit.collider.name}"
+            );
+            return;
+        }
+
         Health targetHealth = target.GetComponent<Health>();
-        if (targetHealth != null) {
+        if (targetHealth != null)
+        {
             int gunDamage = 50;
             targetHealth.TakeDamage(gunDamage);
             Debug.Log($"{attacker.name} shot {target.name} for {gunDamage} damage.");
