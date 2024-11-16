@@ -136,6 +136,11 @@ public class PopupManager : MonoBehaviour
 
             npcInstance.name = selectedNPC.npcName;
 
+            NPCMovement npcMovement = npcInstance.GetComponent<NPCMovement>();
+            if (npcMovement != null) {
+                npcMovement.isInPlayerGang = true;
+            }
+
             DisplayRecruitedGangMember(newMember);
 
             ClosePopup();
