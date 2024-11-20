@@ -14,6 +14,8 @@ public class PopupManager : MonoBehaviour
     public Image npcMugshotImage;
     public GameObject gangMemberDisplayPrefab;
 
+    private InventoryManager inventoryManager;
+
     public GameObject recruitmentPanel;
     public GameObject hierarchyPanel;
     public Button viewRecruitmentButton;
@@ -29,8 +31,12 @@ public class PopupManager : MonoBehaviour
     private CriminalOrganization playerGang;
     private RecruitableNPC selectedNPC;
 
+    // Black Market stuff
     public GameObject blackMarketPanel;
     public Button viewBlackMarketButton;
+    public Transform blackMarketListContainer;
+    public GameObject weaponButtonPrefab;
+    public List<Weapon> availableWeapons = new();
 
     void Start()
     {
@@ -40,6 +46,8 @@ public class PopupManager : MonoBehaviour
             playerGang = gangDataManager.playerGang;
             DisplayGangHierarchy();
         }
+
+        inventoryManager = FindObjectOfType<InventoryManager>();
 
         PopulateNPCList();
         confirmButton.onClick.AddListener(RecruitSelectedNPC);
@@ -95,6 +103,7 @@ public class PopupManager : MonoBehaviour
         viewBlackMarketButton.gameObject.SetActive(false);
         backButton.gameObject.SetActive(true);
         closeButton.gameObject.SetActive(true);
+        PopulateBlackMarket();
     }
 
     void ShowBasePopup()
@@ -109,6 +118,53 @@ public class PopupManager : MonoBehaviour
 
         backButton.gameObject.SetActive(false);
         closeButton.gameObject.SetActive(true);
+    }
+
+    public void PopulateBlackMarket()
+    {
+        Debug.Log("Populating Black Market...");
+
+        // Clear existing entries
+        foreach (Transform child in blackMarketListContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Populate with available weapons
+        foreach (Weapon weapon in availableWeapons)
+        {
+            Debug.Log($"Processing weapon: {weapon.weaponName}");
+
+            GameObject weaponButton = Instantiate(weaponButtonPrefab, blackMarketListContainer);
+            TextMeshProUGUI buttonText = weaponButton.GetComponentInChildren<TextMeshProUGUI>();
+            buttonText.text = $"{weapon.weaponName} - ${weapon.cost}";
+
+            Button buttonComponent = weaponButton.GetComponent<Button>();
+            buttonComponent.onClick.AddListener(() => PurchaseWeapon(weapon));
+
+            Debug.Log($"Added {weapon.weaponName} to the Black Market.");
+        }
+    }
+
+    public void PurchaseWeapon(Weapon weapon)
+    {
+        EconomyManager economyManager = FindObjectOfType<EconomyManager>();
+        if (economyManager == null)
+        {
+            Debug.LogError("EconomyManager not found!");
+            return;
+        }
+
+        if (economyManager.SpendMoney(weapon.cost))
+        {
+            inventoryManager.AddWeapon(weapon);
+            Debug.Log($"Purchased {weapon.weaponName} for ${weapon.cost}.");
+            PopulateBlackMarket();
+        }
+        else
+        {
+            Debug.Log("Not enough money to purchase this weapon.");
+        }
     }
 
     void PopulateNPCList()
