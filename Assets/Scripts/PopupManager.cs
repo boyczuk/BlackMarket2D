@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,6 +29,9 @@ public class PopupManager : MonoBehaviour
     private CriminalOrganization playerGang;
     private RecruitableNPC selectedNPC;
 
+    public GameObject blackMarketPanel;
+    public Button viewBlackMarketButton;
+
     void Start()
     {
         gangDataManager = FindObjectOfType<GangDataManager>();
@@ -43,6 +47,7 @@ public class PopupManager : MonoBehaviour
 
         viewRecruitmentButton.onClick.AddListener(ShowRecruitmentPanel);
         viewHierarchyButton.onClick.AddListener(ShowHierarchyPanel);
+        viewBlackMarketButton.onClick.AddListener(ShowBlackMarketPanel);
         backButton.onClick.AddListener(ShowBasePopup);
 
         recruitmentPanel.SetActive(false);
@@ -79,12 +84,29 @@ public class PopupManager : MonoBehaviour
         DisplayGangHierarchy();
     }
 
+    public void ShowBlackMarketPanel()
+    {
+        recruitmentPanel.SetActive(false);
+        hierarchyPanel.SetActive(false);
+        blackMarketPanel.SetActive(true);
+
+        viewHierarchyButton.gameObject.SetActive(false);
+        viewRecruitmentButton.gameObject.SetActive(false);
+        viewBlackMarketButton.gameObject.SetActive(false);
+        backButton.gameObject.SetActive(true);
+        closeButton.gameObject.SetActive(true);
+    }
+
     void ShowBasePopup()
     {
         recruitmentPanel.SetActive(false);
         hierarchyPanel.SetActive(false);
+        blackMarketPanel.SetActive(false);
+
         viewHierarchyButton.gameObject.SetActive(true);
         viewRecruitmentButton.gameObject.SetActive(true);
+        viewBlackMarketButton.gameObject.SetActive(true);
+
         backButton.gameObject.SetActive(false);
         closeButton.gameObject.SetActive(true);
     }
@@ -137,7 +159,8 @@ public class PopupManager : MonoBehaviour
             npcInstance.name = selectedNPC.npcName;
 
             NPCMovement npcMovement = npcInstance.GetComponent<NPCMovement>();
-            if (npcMovement != null) {
+            if (npcMovement != null)
+            {
                 npcMovement.isInPlayerGang = true;
             }
 
