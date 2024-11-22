@@ -7,7 +7,7 @@ public class InventoryManager : MonoBehaviour
 
     public void AddWeapon(Weapon weapon)
     {
-        if (!ownedWeapons.Contains(weapon))
+        if (!ownedWeapons.Exists(w => w.weaponName == weapon.weaponName))
         {
             ownedWeapons.Add(weapon);
             Debug.Log($"Added {weapon.weaponName} to inventory.");

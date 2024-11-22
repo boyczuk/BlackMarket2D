@@ -9,6 +9,7 @@ public class CriminalOrganization
     public List<GangMember> lieutenants = new List<GangMember>();
     public List<GangMember> soldiers = new List<GangMember>();
     public List<GangMember> kickedOutMembers = new List<GangMember>();
+    public List<Weapon> ownedWeapons = new List<Weapon>();
 
     public CriminalOrganization()
     {
@@ -16,9 +17,9 @@ public class CriminalOrganization
         underbosses = new List<GangMember>();
         lieutenants = new List<GangMember>();
         soldiers = new List<GangMember>();
+        ownedWeapons = new List<Weapon>();
     }
 
-    // Method to get all members
     public List<GangMember> GetAllMembers()
     {
         List<GangMember> allMembers = new List<GangMember>();
@@ -54,6 +55,14 @@ public class CriminalOrganization
             default:
                 soldiers.Add(newMember); // Default to soldier if role is unspecified
                 break;
+        }
+    }
+
+    public void AddWeapon(Weapon weapon)
+    {
+        if (!ownedWeapons.Exists(w => w.weaponName == weapon.weaponName))
+        {
+            ownedWeapons.Add(weapon);
         }
     }
 }

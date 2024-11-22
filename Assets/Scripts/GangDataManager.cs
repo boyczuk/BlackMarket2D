@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
@@ -11,13 +12,23 @@ public class GangDataManager : MonoBehaviour
     public CriminalOrganization enemyGang;
     public GameObject gangMemberDisplayPrefab;
 
+    private InventoryManager inventoryManager; // Reference to InventoryManager
+
     void Start()
     {
         playerSavePath = Application.persistentDataPath + "/gangData.json";
         enemySavePath = Application.persistentDataPath + "/enemyGangData.json";
 
+        inventoryManager = FindObjectOfType<InventoryManager>();
+
         LoadPlayerGangData();
         LoadEnemyGangData();
+
+        // Sync weapons between InventoryManager and player gang
+        if (playerGang != null && inventoryManager != null)
+        {
+            inventoryManager.ownedWeapons = playerGang.ownedWeapons ?? new List<Weapon>();
+        }
 
         DisplayExistingGangMembers(playerGang, true);
         DisplayExistingGangMembers(enemyGang, false);
@@ -29,6 +40,13 @@ public class GangDataManager : MonoBehaviour
     public void SaveGangData(CriminalOrganization organization, bool isPlayerGang)
     {
         string path = isPlayerGang ? playerSavePath : enemySavePath;
+
+        // Sync weapons from InventoryManager to the player gang before saving
+        if (isPlayerGang && inventoryManager != null)
+        {
+            organization.ownedWeapons = inventoryManager.ownedWeapons;
+        }
+
         string json = JsonUtility.ToJson(organization, true);
         File.WriteAllText(path, json);
     }
@@ -36,6 +54,13 @@ public class GangDataManager : MonoBehaviour
     public void LoadPlayerGangData()
     {
         playerGang = LoadGangData(playerSavePath) ?? CreateDefaultOrganization();
+
+        // Sync loaded weapons into InventoryManager
+        if (playerGang != null && inventoryManager != null)
+        {
+            inventoryManager.ownedWeapons = playerGang.ownedWeapons ?? new List<Weapon>();
+        }
+
         SaveGangData(playerGang, true);
     }
 

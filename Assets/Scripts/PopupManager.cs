@@ -34,7 +34,7 @@ public class PopupManager : MonoBehaviour
     // Black Market stuff
     public GameObject blackMarketPanel;
     public Button viewBlackMarketButton;
-    public Transform blackMarketListContainer;
+    public Transform weaponListContent;
     public GameObject weaponButtonPrefab;
     public List<Weapon> availableWeapons = new();
 
@@ -125,7 +125,7 @@ public class PopupManager : MonoBehaviour
         Debug.Log("Populating Black Market...");
 
         // Clear existing entries
-        foreach (Transform child in blackMarketListContainer)
+        foreach (Transform child in weaponListContent)
         {
             Destroy(child.gameObject);
         }
@@ -135,7 +135,7 @@ public class PopupManager : MonoBehaviour
         {
             Debug.Log($"Processing weapon: {weapon.weaponName}");
 
-            GameObject weaponButton = Instantiate(weaponButtonPrefab, blackMarketListContainer);
+            GameObject weaponButton = Instantiate(weaponButtonPrefab, weaponListContent);
             TextMeshProUGUI buttonText = weaponButton.GetComponentInChildren<TextMeshProUGUI>();
             buttonText.text = $"{weapon.weaponName} - ${weapon.cost}";
 
